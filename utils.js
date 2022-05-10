@@ -16,7 +16,6 @@ function createProgram(webglContext, vertShader, fragShader)
     webglContext.linkProgram(program);
     if (!webglContext.getProgramParameter(program, gl.LINK_STATUS)) console.log(webglContext.getProgramInfoLog(program));
 
-
     return program;
 }
 
