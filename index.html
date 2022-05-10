@@ -1,0 +1,99 @@
+<!-- This is a learning exercise heavily inspired by: https://blog.mapbox.com/how-i-built-a-wind-map-with-webgl-b63022b5537f -->
+
+<body style="width: 100%; height:100%; background-color: #111;">
+    <canvas style="border: 2px solid #666; " width="800" height="800" id="c"></canvas>
+</body>
+
+<script src="./utils.js"></script>
+<script src="./draw.js"></script>
+<script src="./update.js"></script>
+
+<script>
+    gl.useProgram(drawProgram);
+   
+    // We need an array with the same number of indexes as the pixel buffer. This is basically how we get the vertex shader to run X times, 
+    // as we use each one of these potions as points in the draw arrays method, and calculate the position of the particle 
+    // we need in the vertex shader of the draw program.
+    var posArray = [];
+    for(var  i = 0; i < 16; i++) {posArray.push(i);}
+    posArray = new Float32Array(posArray);
+
+    var positionBuffer = utils.createBindArrayBuffer(gl, drawProgram, "a_positionIndex", posArray, gl.STATIC_DRAW);
+
+    // Create an initial texture with randomized positions of starting pixels
+    // Remember, the X position of the particle is the red + blue values, and the y position is the
+    // blue + alpha values. This is done for accuracy purposes as we can store many more possible values between the two.
+    // Each value can be up to 255, hence the random number between 0 and 255.
+    var pixelRGBArray = [];
+    function random255(){return Math.floor(Math.random() * 256);}
+    for(var  i = 0; i < 16 * 4 /*16 pixels, 4 values for each as RGBA*/; i++) pixelRGBArray.push(random255());
+    const pixels = new Uint8Array(pixelRGBArray);
+
+    // Create the textures that will store particle position information
+    var texture1 = utils.createTexture(gl, gl.TEXTURE_2D, 0, gl.RGBA, 4, 4, 0, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+    var texture2 = utils.createTexture(gl, gl.TEXTURE_2D, 0, gl.RGBA, 4, 4, 0, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+
+    // Draw 2 triangles to cover the whole texture. 
+    // Thanks to the interpolation that happens in the shader, each pixel will therefore be covered, meaning every 
+    // particle will be covered as 1 pixel = 1 encoded particle.
+    gl.useProgram(updateProgram);
+
+    var triangleData = new Float32Array([0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1]) // two triangles together covering whole clip space area
+    var triangleBuffer = utils.createBindArrayBuffer(gl, updateProgram, "a_xycoord", triangleData, gl.STATIC_DRAW);
+
+    var calculationframebuffer = gl.createFramebuffer();
+
+    function draw()
+    {  
+        //First we draw, so use the draw shader.
+        gl.useProgram(drawProgram);
+        
+        // Binding the frame buffer to null means to bind to the default context, which in webgl is the canvas.
+        // In other words, this is telling the shader to draw to the canvas
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+        gl.viewport(0,0,800, 800) //Have to set viewport, it isn't done automatically.
+        gl.bindTexture(gl.TEXTURE_2D, texture1); // This is the texture that will be read from. It contains the particle position locations.
+
+        // Have to rebind the buffer and do the attribpointer stuff each frame. Unsure as to sure why.
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer.buffer); 
+        gl.vertexAttribPointer(positionBuffer.attribLocation, 1, gl.FLOAT, false, 0,0);
+
+        // Draw the particles
+        gl.drawArrays(gl.POINTS, 0, 16);
+
+        // Nowe we update the particle positons, so use the update shader.
+        gl.useProgram(updateProgram);
+
+        //This is how we write to a texture. We use a framebuffer and write to that instead of the default framebuffer (the canvas). 
+        gl.bindFramebuffer(gl.FRAMEBUFFER, calculationframebuffer);
+
+        // Set the viewport. There numbers are the dimensions of the texture containing the particle location info.
+        gl.viewport(0,0,4,4)
+
+        // The shader should read from texture 1 to get the particle locations that were drawn previously.
+        gl.bindTexture(gl.TEXTURE_2D, texture1);
+
+        // Tell the frame buffer to write to texture 2.
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture2, 0);
+
+        // Set up the triangles that cover the whole texture so that each pixel as ran in the fragment shader via interpolation
+        // Have to rebind the buffer and do the attribpointer stuff each frame. Unsure as to sure why.
+        gl.bindBuffer(gl.ARRAY_BUFFER, triangleBuffer.buffer);
+        gl.vertexAttribPointer(triangleBuffer.attribLocation, 2, gl.FLOAT, false, 0, 0);
+
+        // Draw the triangles to commence updating.
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+        // Swap the two textures so that we can repeat the cycle with the latest particle positions.
+        // Without doing this, we would essentially keep updating the same exact old position, meaning everything would stay the same basically
+        var temp = texture1;
+        texture1 = texture2;
+        texture2 = temp;    
+    
+        // This tells the browser to keep rerunning this function whenever it deems fit (typically the refresh rate of the monitor).
+        requestAnimationFrame(draw); 
+    };
+
+    draw()
+</script>
