@@ -4,17 +4,15 @@ precision mediump float;
 out vec4 fragColor;
 in vec4 v_colour;
 
-
 void main(){
     fragColor = v_colour;
 }
 `);
 
-var vertShadersrc = `#version 300 es
-
+var vertShadersrc = (
+`#version 300 es
 uniform sampler2D particles;
 uniform float nParticleDimensions;
-
 in vec2 a_positionIndex; // This stores the xy component to find the pixel.
 out vec4 v_colour;
 
@@ -34,10 +32,10 @@ void main() {
     float x = (pos.x * 2.0) - 1.0;
     float y = 1.0 - 2.0 * (pos.y);
 
-    gl_PointSize = 13.0;
+    gl_PointSize = 1.0;
     gl_Position = vec4( x,y, 0, 1);
 }
-`
+`);
 
 var gl = document.getElementById("c").getContext("webgl2", {preserveDrawingBuffer: false});
 var vertShader = utils.createShader(gl, gl.VERTEX_SHADER, vertShadersrc);

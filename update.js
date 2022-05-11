@@ -1,12 +1,8 @@
 var fragShadersrc = (
 `#version 300 es
-
 precision mediump float;
-
 uniform sampler2D particles;
-
 out vec4 fragColor;
-
 in vec2 v_texturePosition;
 
 // Gratefully taken from: https://stackoverflow.com/questions/4200224/random-noise-functions-for-glsl
@@ -28,7 +24,7 @@ void main(){
 
     float random = rand(pos * sin(colour.a));
 
-    if (random > 0.99) {
+    if (random > 0.9) {
         pos.x = rand(vec2(random, v_texturePosition));
         pos.y = rand(vec2(pos.x, colour.a));
     }
