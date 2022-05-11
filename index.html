@@ -14,7 +14,7 @@
 
     // This will represent the size of the 2D particle texture. E.g., if nParticleDimensions = 100, there will be 100x100 particles.
     // Set the uniorm representing this variable in the shaders too.
-    var nParticleDimensions = 7;
+    var nParticleDimensions = 4;
     nParticles = nParticleDimensions * nParticleDimensions;
     var nParticleDimensionsLocation = gl.getUniformLocation(drawProgram, "nParticleDimensions");
     gl.uniform1f(nParticleDimensionsLocation, nParticleDimensions)
@@ -23,7 +23,13 @@
     // as we use each one of these potions as points in the draw arrays method, and calculate the position of the particle 
     // we need in the vertex shader of the draw program.
     var posArray = [];
-    for(var  i = 0; i < nParticles; i++) {posArray.push(i);}
+    for(var i = 0; i < nParticleDimensions; i++) {
+        for(var j = 0; j < nParticleDimensions; j++)
+        {
+            posArray.push(i, j);
+        }  
+    }
+
     posArray = new Float32Array(posArray);
     var positionBuffer = utils.createBindArrayBuffer(gl, drawProgram, "a_positionIndex", posArray, gl.STATIC_DRAW);
 
@@ -32,6 +38,7 @@
     // blue + alpha values. This is done for accuracy purposes as we can store many more possible values between the two.
     // Each value can be up to 255, hence the random number between 0 and 255.
     var pixelRGBArray = [];
+
     function random255(){return Math.floor(Math.random() * 256);}
     for(var  i = 0; i < nParticles * 4 /*Multiply by 4 as 1 for each RGBA*/; i++) pixelRGBArray.push(random255());
     const pixels = new Uint8Array(pixelRGBArray);
@@ -45,11 +52,10 @@
     // particle will be covered as 1 pixel = 1 encoded particle.
     gl.useProgram(updateProgram);
 
-    var triangleData = new Float32Array([-1.0, -1.0,1.0, -1.0, -1.0,  1.0,-1.0,  1.0, 1.0, -1.0, 1.0,  1.0,]) // two triangles together covering whole clip space area
+    var triangleData = new Float32Array([-1.0, -1.0,1.0, -1.0, -1.0,  1.0,-1.0,  1.0, 1.0, -1.0, 1.0,  1.0]) // two triangles together covering whole clip space area
     var triangleBuffer = utils.createBindArrayBuffer(gl, updateProgram, "a_xycoord", triangleData, gl.STATIC_DRAW);
 
     var nParticleDimensionsLocation = gl.getUniformLocation(drawProgram, "nParticleDimensions");
-
 
     var calculationframebuffer = gl.createFramebuffer();
 
@@ -70,7 +76,7 @@
 
         // Have to rebind the buffer and do the attribpointer stuff each frame. Unsure as to sure why.
         gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer.buffer); 
-        gl.vertexAttribPointer(positionBuffer.attribLocation, 1, gl.FLOAT, false, 0,0);
+        gl.vertexAttribPointer(positionBuffer.attribLocation, 2, gl.FLOAT, false, 0,0);
 
         // Draw the particles
         gl.drawArrays(gl.POINTS, 0, nParticles);
@@ -108,7 +114,6 @@
         requestAnimationFrame(draw)
        
     };
-    draw()     
-
-    //setInterval(draw, 1000)
+    
+    draw();
 </script>
