@@ -25,4 +25,4 @@ void main() {
 var gl = document.getElementById("c").getContext("webgl2", {preserveDrawingBuffer: false});
 var vertShader = utils.createShader(gl, gl.VERTEX_SHADER, vertShadersrc);
 var fragShader = utils.createShader(gl, gl.FRAGMENT_SHADER, fragShadersrc);
-var backgroundProgram = utils.createProgram(gl, vertShader, fragShader);
+var drawBackgroundProgram = utils.createProgram(gl, vertShader, fragShader);

@@ -9,8 +9,10 @@ uniform sampler2D sampler;
 void main(){
     vec4 colour = texture(sampler, (1.0 + v_textureCoord) / 2.0);
 
+    vec3 rgb = vec3(26.0, 10.0, 0.0) / 255.0;
+
     // This fades to black with 50% alpha for the trail effect.
-    fragColor = mix(colour, vec4(0.0, 0.0, 0.0, 0.5), 0.2);
+    fragColor = mix(colour, vec4(rgb.rgb, 0.3), 0.14);
 }
 `);
     
@@ -28,4 +30,4 @@ void main() {
 var gl = document.getElementById("c").getContext("webgl2", {preserveDrawingBuffer: false});
 var vertShader = utils.createShader(gl, gl.VERTEX_SHADER, vertShadersrc);
 var fragShader = utils.createShader(gl, gl.FRAGMENT_SHADER, fragShadersrc);
-var fadeProgram = utils.createProgram(gl, vertShader, fragShader);
+var fadeBackgroundProgram = utils.createProgram(gl, vertShader, fragShader);

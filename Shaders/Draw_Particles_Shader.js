@@ -5,7 +5,9 @@ out vec4 fragColor;
 in vec4 v_colour;
 
 void main(){
-    fragColor = vec4(v_colour.rgb, 1.);
+    
+    vec3 rgb = vec3(255.0, 163.0, 102.0)/ 255.0;
+    fragColor = vec4(rgb, 255.0); //vec4(0.8,0.6, 1., 1);
 }
 `);
 
@@ -33,7 +35,7 @@ void main() {
     float x = (pos.x * 2.0) - 1.0;
     float y = 1.0 - 2.0 * (pos.y);
 
-    gl_PointSize = 3.0;
+    gl_PointSize = 1.0;
     gl_Position = vec4(x, y, 0, 1);
 }
 `);
@@ -41,4 +43,4 @@ void main() {
 var gl = document.getElementById("c").getContext("webgl2", {preserveDrawingBuffer: false});
 var vertShader = utils.createShader(gl, gl.VERTEX_SHADER, vertShadersrc);
 var fragShader = utils.createShader(gl, gl.FRAGMENT_SHADER, fragShadersrc);
-var drawProgram = utils.createProgram(gl, vertShader, fragShader);
+var drawParticlesProgram = utils.createProgram(gl, vertShader, fragShader);

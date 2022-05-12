@@ -23,21 +23,30 @@ void main(){
     vec2 pos = vec2(colour.r / 255.0 + colour.b, colour.g / 255.0 + colour.a);
 
     // Do whatever we want to update the position of the particle.
-    pos.x += 0.003;
-    pos.y -= sin(pos.x) / 255.;
+    pos.x -= sin(7. * pos.y) / 855.;
+    pos.y += cos(7. * pos.x) / 855.;
 
     bool resetPosition = false;
-
+    
     // Check if at screen boundary
-    if (pos.x <= 0.0 || pos.x >= 1.0 || pos.y <= 0.0 || pos.y >= 1.0) {
-        resetPosition = true;
-    } else {
-        if (rand(vec2(pos + v_texturePosition) * randomSeed) > 0.98)
-        {
-            resetPosition = true;
-        }
+    if (pos.x > 1.0) { 
+        pos.x = 0.0; 
+    } 
+    if (pos.x < 0.0){
+        pos.x = 1.0;
+    }
+    if (pos.y > 1.0) {
+        pos.y = 0.0;
+    } 
+    if (pos.y < 0.0) {
+         pos.y = 1.0;
     }
 
+    if (rand(vec2(pos + v_texturePosition) * randomSeed) > 0.999)
+    {
+        resetPosition = true;
+    }
+    
     if (resetPosition)
     {
         pos.x = rand(vec2(pos.y, v_texturePosition));
