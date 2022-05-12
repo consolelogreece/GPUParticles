@@ -1,4 +1,19 @@
-var fragShadersrc = (
+var updateParticlesProgramSrc = {
+vert: (
+`#version 300 es
+in vec2 a_xycoord;
+out vec2 v_texturePosition;
+
+void main() {
+    // Texture position is from 0,0 to 1,1. This makes clip space weird as it's from -1,-1 to 1,1.
+    // This essentially normalizes the clip space to match the texture coordinates.
+    v_texturePosition = (1.0 + a_xycoord) / 2.0;
+
+    gl_Position = vec4(a_xycoord, 0,1);
+}
+`),
+        
+frag: (
 `#version 300 es
 precision mediump float;
 
@@ -39,7 +54,7 @@ void main(){
         pos.y = 0.0;
     } 
     if (pos.y < 0.0) {
-         pos.y = 1.0;
+            pos.y = 1.0;
     }
 
     if (rand(vec2(pos + v_texturePosition) * randomSeed) > 0.999)
@@ -56,23 +71,4 @@ void main(){
     // convert the positions back in to a colour and write them to the texture (this will be texture2, and not the default texture(canvas)).
     fragColor = vec4(fract(pos * 255.0), floor(pos * 255.0) / 255.0);
 }
-`);
-
-var vertShadersrc = (
-`#version 300 es
-in vec2 a_xycoord;
-out vec2 v_texturePosition;
-
-void main() {
-    // Texture position is from 0,0 to 1,1. This makes clip space weird as it's from -1,-1 to 1,1.
-    // This essentially normalizes the clip space to match the texture coordinates.
-    v_texturePosition = (1.0 + a_xycoord) / 2.0;
-
-    gl_Position = vec4(a_xycoord, 0,1);
-}
-`);
-
-var gl = document.getElementById("c").getContext("webgl2");
-var vertShader = utils.createShader(gl, gl.VERTEX_SHADER, vertShadersrc);
-var fragShader = utils.createShader(gl, gl.FRAGMENT_SHADER, fragShadersrc);
-var updateProgram = utils.createProgram(gl, vertShader, fragShader);
+`)};

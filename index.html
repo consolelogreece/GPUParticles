@@ -6,191 +6,41 @@
 
 <script src="./utils.js"></script>
 <script src="./Shaders/Draw_Particles_Shader.js"></script>
-<script src="./Shaders/Fade_Background_Shader.js"></script>
-<script src="./Shaders/Draw_To_Background_Shader.js"></script>
-<script src="./Shaders/Update_Shader.js"></script>
+<script src="./Shaders/Fade_Screen_Texture_Shader.js"></script>
+<script src="./Shaders/Draw_To_Screen_Texture_Shader.js"></script>
+<script src="./Shaders/Update_Particles_Shader.js"></script>
+<script src="./Scripts/ParticlesExperiment.js"></script>
 <link rel="stylesheet" type="text/css" href="styles.css">
+
 <script>
-    var width = window.innerWidth / 100 * 90;
-    var height = window.innerHeight / 100 * 90;
-    gl.canvas.width = width;
-    gl.canvas.height = height;
-
-    gl.useProgram(drawParticlesProgram);
-
-    // This will represent the size of the 2D particle texture. E.g., if nParticleDimensions = 100, there will be 100x100 particles.
-    // Set the uniorm representing this variable in the shaders too.
-    var nParticleDimensions = 100;
-    nParticles = nParticleDimensions * nParticleDimensions;
-    var nParticleDimensionsLocation = gl.getUniformLocation(drawParticlesProgram, "nParticleDimensions");
-    gl.uniform1f(nParticleDimensionsLocation, nParticleDimensions)
-  
-    // We need an array with the same number of indexes as the pixel buffer. This is basically 
-    // how we get the vertex shader to run X times for each pixel of the partcile position texture. 
-    // We use each one of these positions as points in the draw arrays method, and calculate the position of the particle 
-    // we need in the vertex shader of the draw program.
-    var posArray = [];
-    for(var i = 0; i < nParticleDimensions; i++) {
-        for(var j = 0; j < nParticleDimensions; j++) posArray.push(i, j);
-    }
-
-    posArray = new Float32Array(posArray);
-    var positionBuffer = utils.createBindArrayBuffer(gl, drawParticlesProgram, "a_positionIndex", posArray, gl.STATIC_DRAW);
-
-    // Create an initial texture with randomized positions of starting pixels
-    // Remember, the X position of the particle is the red + blue values, and the y position is the
-    // blue + alpha values. This is done for accuracy purposes as we can store many more possible values between the two.
-    // Each value can be up to 255, hence the random number between 0 and 255.
-    var pixelRGBArray = [];
-
-    function random255(){return Math.floor(Math.random() * 256);}
-    for(var  i = 0; i < nParticles * 4 /*Multiply by 4 as 1 for each RGBA*/; i++) pixelRGBArray.push(random255());
-    const pixels = new Uint8Array(pixelRGBArray);
-
-    // Create the textures that will store particle position information. Also the framebuffer.
-    var calculationframebuffer = gl.createFramebuffer();
-    var texture1 = utils.createTexture(gl, gl.TEXTURE_2D, 0, gl.RGBA, nParticleDimensions, nParticleDimensions, 0, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
-    var texture2 = utils.createTexture(gl, gl.TEXTURE_2D, 0, gl.RGBA, nParticleDimensions, nParticleDimensions, 0, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
-
-    //TODO NEXT: Draw the particles onto a texture the size of the screen. 
-    // this can then be used to draw the latest particle, and saved for next cycle where it can be dimmed before adding to it for a trail effect
-
-    // Draw 2 triangles to cover the whole texture. 
-    // Thanks to the interpolation that happens in the shader, each pixel will therefore be covered, meaning every 
-    // particle will be covered as 1 pixel = 1 encoded particle.
-    var triangleData = new Float32Array([-1.0, -1.0,1.0, -1.0, -1.0,  1.0,-1.0,  1.0, 1.0, -1.0, 1.0,  1.0]); // two triangles together covering whole clip space.
-    var wholeClipSpaceTriangleBuffer = utils.createBindArrayBuffer(gl, updateProgram, "a_xycoord", triangleData, gl.STATIC_DRAW);
-
-    var bgframebuffer = gl.createFramebuffer();
-    var backgroundTexture1 = utils.createTexture(gl, gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-    var backgroundTexture2 = utils.createTexture(gl, gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-    var wholeClipSpaceTriangleBufferBG = utils.createBindArrayBuffer(gl, drawBackgroundProgram, "a_xycoord", triangleData, gl.STATIC_DRAW);
-
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-
-    window.addEventListener('resize', () => {
-        width = window.innerWidth / 100 * 90;
-        height = window.innerHeight / 100 * 90;
-
-        gl.canvas.width = width;
-        gl.canvas.height = height;
-
-        window.cancelAnimationFrame(anim);
-        backgroundTexture1 = utils.createTexture(gl, gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-        backgroundTexture2 = utils.createTexture(gl, gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-        draw();
-    }); 
-
-    var anim;
-    
+    var requestAnimationFrameReference;
     function draw()
-    {  
-        drawToScreen();
-        updateParticlePositions();
+    {
+        particles.draw();
         
         // This tells the browser to keep rerunning this function whenever it deems fit (typically the refresh rate of the monitor).
-        anim = requestAnimationFrame(draw)
-    };
+        requestAnimationFrameReference = requestAnimationFrame(draw);
+    }
 
+    function resize()
+    {
+        // Keep it square because it looks cooler.
+        var dimension = window.innerWidth;
+        if (window.innerHeight < window.innerWidth) dimension = window.innerHeight;
+
+        var dimensionSizePixels = dimension / 100 * 95;
+
+        particles.resize(dimensionSizePixels, dimensionSizePixels)
+
+        window.cancelAnimationFrame(requestAnimationFrameReference);
+
+        draw();
+    }
+
+    var particles = new ParticlesExperiment(document.getElementById("c").getContext("webgl2", {preserveDrawingBuffer: false}));
+
+    window.addEventListener('resize', resize); 
+
+    resize();
     draw();
-    
-    var randomSeedLoc = gl.getUniformLocation(updateProgram, "randomSeed");
-
-    function updateParticlePositions()
-    {
-        // If blend is enabled, it messes up positons completely as alpha stores position location!
-        gl.disable(gl.BLEND);
-
-        // Now we must update the particle positons, so use the update shader.
-        gl.useProgram(updateProgram);
-
-        var seed = Math.random() * 256;
-
-        gl.uniform1f(randomSeedLoc, seed)
-
-        // //This is how we write to a texture. We use a framebuffer and write to that instead of the default framebuffer (the canvas). 
-        gl.bindFramebuffer(gl.FRAMEBUFFER, calculationframebuffer);
-
-        // // Set the viewport. There numbers are the dimensions of the texture containing the particle location info.
-        gl.viewport(0,0,nParticleDimensions, nParticleDimensions);
-
-        // // The shader should read from texture 1 to get the particle locations that were drawn previously.
-        gl.bindTexture(gl.TEXTURE_2D, texture1);
-
-        // // Tell the frame buffer to write to texture 2.
-        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture2, 0);
-
-        // // Set up the triangles that cover the whole texture so that each pixel as ran in the fragment shader via interpolation
-        // Have to rebind the buffer and do the attribpointer stuff each frame. Unsure as to sure why.
-        gl.bindBuffer(gl.ARRAY_BUFFER, wholeClipSpaceTriangleBuffer.buffer);
-        gl.vertexAttribPointer(wholeClipSpaceTriangleBuffer.attribLocation, 2, gl.FLOAT, false, 0, 0);
-
-        // Draw the triangles to commence updating.
-        gl.drawArrays(gl.TRIANGLES, 0, 6);
-
-        // Swap the two textures so that we can repeat the cycle with the latest particle positions.
-        // Without doing this, we would essentially keep updating the same exact old position, meaning everything would stay the same basically
-        var temp = texture1;
-        texture1 = texture2;
-        texture2 = temp;  
-    }
-
-    function drawToScreen()
-    {
-        // This is what allows for alpha to work so we can get trails.
-        gl.enable(gl.BLEND);
-
-        // Copy background 1 to background 2, which also applies fading in the shader.
-        gl.useProgram(fadeBackgroundProgram);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, bgframebuffer);
-
-        // read from bg texture 1
-        gl.bindTexture(gl.TEXTURE_2D, backgroundTexture1); 
-        // write to bg texture 2
-        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, backgroundTexture2, 0);  
-        //Have to set viewport, it isn't done automatically.
-        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height); 
-        gl.bindBuffer(gl.ARRAY_BUFFER, wholeClipSpaceTriangleBufferBG.buffer);
-        gl.vertexAttribPointer(wholeClipSpaceTriangleBufferBG.attribLocation, 2, gl.FLOAT, false, 0, 0);
-        gl.drawArrays(gl.TRIANGLES, 0, 6);
-
-        // Draw the particles on to the background using this shader.
-        gl.useProgram(drawParticlesProgram);
-    
-        gl.bindFramebuffer(gl.FRAMEBUFFER, bgframebuffer);
-
-        //Have to set viewport, it isn't done automatically.
-        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-        // This is the texture that will be read from. It contains the particle position locations.
-        gl.bindTexture(gl.TEXTURE_2D, texture1); 
-
-        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, backgroundTexture2, 0); 
-
-        // Have to rebind the buffer and do the attribpointer stuff each frame. Unsure as to sure why.
-        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer.buffer); 
-        gl.vertexAttribPointer(positionBuffer.attribLocation, 2, gl.FLOAT, false, 0,0);
-
-        // Draw the particles
-        gl.drawArrays(gl.POINTS, 0, nParticles);
-        
-        // Draw everything to the screen. Although the background shader iss almost identical to the fade shader
-        // We have to use a different one, because we want the latest particle position to have no fade.
-        // If we use the fade shader here, it will work, but it'll just look worse.
-        gl.useProgram(fadeBackgroundProgram);
-        // Binding the frame buffer to null means to bind to the default context, which in webgl is the canvas.
-        // In other words, this is telling the shader to draw to the canvas
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
-        // The particle positions and stuff are all now on this texture so we just have to draw it!
-        gl.bindTexture(gl.TEXTURE_2D, backgroundTexture2);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, wholeClipSpaceTriangleBufferBG.buffer);
-        gl.vertexAttribPointer(wholeClipSpaceTriangleBufferBG.attribLocation, 2, gl.FLOAT, false, 0, 0);
-        gl.drawArrays(gl.TRIANGLES, 0, 6);
-
-        // Switch the textures.
-        var tempbg = backgroundTexture1;
-        backgroundTexture1 = backgroundTexture2;
-        backgroundTexture2 = tempbg;
-    }
 </script>

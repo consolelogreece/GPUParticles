@@ -14,7 +14,7 @@ function createProgram(webglContext, vertShader, fragShader)
     webglContext.attachShader(program, vertShader);
     webglContext.attachShader(program, fragShader);
     webglContext.linkProgram(program);
-    if (!webglContext.getProgramParameter(program, gl.LINK_STATUS)) console.log(webglContext.getProgramInfoLog(program));
+    if (!webglContext.getProgramParameter(program, webglContext.LINK_STATUS)) console.log(webglContext.getProgramInfoLog(program));
 
     return program;
 }
@@ -25,10 +25,10 @@ function createTexture(webglContext, target, level, internalformat, width, heigh
     webglContext.bindTexture(target, texture);
     webglContext.texImage2D(target, level, internalformat /*describes the format output by the shader*/, width, height, border, format, 
     type /*last two values describe the format of the texture data used*/, data) // think of this as the gl.bufferData equivalent for shaders
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    webglContext.texParameteri(webglContext.TEXTURE_2D, webglContext.TEXTURE_WRAP_S, webglContext.CLAMP_TO_EDGE);
+    webglContext.texParameteri(webglContext.TEXTURE_2D, webglContext.TEXTURE_WRAP_T, webglContext.CLAMP_TO_EDGE);
+    webglContext.texParameteri(webglContext.TEXTURE_2D, webglContext.TEXTURE_MIN_FILTER, webglContext.NEAREST);
+    webglContext.texParameteri(webglContext.TEXTURE_2D, webglContext.TEXTURE_MAG_FILTER, webglContext.NEAREST);
     
     return texture;
 }
@@ -45,9 +45,17 @@ function createBindArrayBuffer(webglContext, program, attribName, data, drawType
     return {attribLocation: attrib, buffer:buffer};
 }
 
+function createProgramFromSrc(webglContext, vertSrc, fragSrc)
+{
+    var vertShader = utils.createShader(webglContext, webglContext.VERTEX_SHADER, vertSrc);
+    var fragShader = utils.createShader(webglContext, webglContext.FRAGMENT_SHADER, fragSrc);
+    return utils.createProgram(webglContext, vertShader, fragShader);
+}
+
 const utils = {
     createShader: createShader,
     createProgram: createProgram,
     createTexture: createTexture,
-    createBindArrayBuffer: createBindArrayBuffer
+    createBindArrayBuffer: createBindArrayBuffer,
+    createProgramFromSrc: createProgramFromSrc
 }

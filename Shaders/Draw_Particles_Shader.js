@@ -1,17 +1,5 @@
-var fragShadersrc = (
-`#version 300 es
-precision mediump float;
-out vec4 fragColor;
-in vec4 v_colour;
-
-void main(){
-    
-    vec3 rgb = vec3(255.0, 163.0, 102.0)/ 255.0;
-    fragColor = vec4(rgb, 255.0); //vec4(0.8,0.6, 1., 1);
-}
-`);
-
-var vertShadersrc = (
+var drawParticlesProgramSrc = {
+vert: (
 `#version 300 es
 uniform sampler2D particles;
 uniform float nParticleDimensions;
@@ -37,10 +25,16 @@ void main() {
 
     gl_PointSize = 1.0;
     gl_Position = vec4(x, y, 0, 1);
-}
-`);
+}`),
 
-var gl = document.getElementById("c").getContext("webgl2", {preserveDrawingBuffer: false});
-var vertShader = utils.createShader(gl, gl.VERTEX_SHADER, vertShadersrc);
-var fragShader = utils.createShader(gl, gl.FRAGMENT_SHADER, fragShadersrc);
-var drawParticlesProgram = utils.createProgram(gl, vertShader, fragShader);
+frag: (
+`#version 300 es
+precision mediump float;
+out vec4 fragColor;
+in vec4 v_colour;
+
+void main(){
+    
+    vec3 rgb = vec3(255.0, 163.0, 102.0)/ 255.0;
+    fragColor = vec4(rgb, 255.0); //vec4(0.8,0.6, 1., 1);
+}`)};
