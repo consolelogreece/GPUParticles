@@ -1,7 +1,10 @@
 var fragShadersrc = (
 `#version 300 es
 precision mediump float;
+
 uniform sampler2D particles;
+uniform float randomSeed;
+
 out vec4 fragColor;
 in vec2 v_texturePosition;
 
@@ -20,12 +23,24 @@ void main(){
     vec2 pos = vec2(colour.r / 255.0 + colour.b, colour.g / 255.0 + colour.a);
 
     // Do whatever we want to update the position of the particle.
-    pos += 0.001;
+    pos.x += 0.003;
+    pos.y -= sin(pos.x) / 255.;
 
-    float random = rand(pos * sin(colour.a));
+    bool resetPosition = false;
 
-    if (random > 0.9) {
-        pos.x = rand(vec2(random, v_texturePosition));
+    // Check if at screen boundary
+    if (pos.x <= 0.0 || pos.x >= 1.0 || pos.y <= 0.0 || pos.y >= 1.0) {
+        resetPosition = true;
+    } else {
+        if (rand(vec2(pos + v_texturePosition) * randomSeed) > 0.98)
+        {
+            resetPosition = true;
+        }
+    }
+
+    if (resetPosition)
+    {
+        pos.x = rand(vec2(pos.y, v_texturePosition));
         pos.y = rand(vec2(pos.x, colour.a));
     }
     

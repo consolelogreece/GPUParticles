@@ -5,7 +5,7 @@ out vec4 fragColor;
 in vec4 v_colour;
 
 void main(){
-    fragColor = v_colour;
+    fragColor = vec4(v_colour.rgb, 1.);
 }
 `);
 
@@ -28,12 +28,13 @@ void main() {
     vec2 pos = vec2(colour.r / 255.0 + colour.b, colour.g / 255.0 + colour.a);
 
     // Pos x any y can only be positive as it's uv space, so in order to convert them into clip space we double it and subtract 1 so that it can be anywhere on screen.
+    // Read about texture coords here: https://webglfundamentals.org/webgl/lessons/webgl-image-processing.html
     // This also flips it so 0,0 is top left as opposed to bottom right.
     float x = (pos.x * 2.0) - 1.0;
     float y = 1.0 - 2.0 * (pos.y);
 
-    gl_PointSize = 1.0;
-    gl_Position = vec4( x,y, 0, 1);
+    gl_PointSize = 3.0;
+    gl_Position = vec4(x, y, 0, 1);
 }
 `);
 

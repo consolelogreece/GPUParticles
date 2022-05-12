@@ -25,8 +25,10 @@ function createTexture(webglContext, target, level, internalformat, width, heigh
     webglContext.bindTexture(target, texture);
     webglContext.texImage2D(target, level, internalformat /*describes the format output by the shader*/, width, height, border, format, 
     type /*last two values describe the format of the texture data used*/, data) // think of this as the gl.bufferData equivalent for shaders
-    webglContext.generateMipmap(target);
-    webglContext.texParameteri(target, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
     
     return texture;
 }
