@@ -24,8 +24,6 @@ class ParticlesExperiment {
             }
         }
 
-        console.log(this.config)
-
         // We need an array with the same number of indexes as the pixel buffer. This is basically 
         // how we get the vertex shader to run X times for each pixel of the partcile position texture. 
         // We use each one of these positions as points in the draw arrays method, and calculate the position of the particle 
@@ -76,7 +74,8 @@ class ParticlesExperiment {
             program: program,
             locations:{
                 uniforms: {
-                    nParticleDimensions: this.gl.getUniformLocation(program, "nParticleDimensions")
+                    nParticleDimensions: this.gl.getUniformLocation(program, "nParticleDimensions"),
+                    particleSize: this.gl.getUniformLocation(program, "particleSize")
                 } 
             },
             buffers: {
@@ -85,7 +84,8 @@ class ParticlesExperiment {
         }
 
         this.gl.useProgram(program);
-        this.gl.uniform1f(this.programs.drawParticles.locations.uniforms.nParticleDimensions, this.config.particles.nParticleDimensions)
+        this.gl.uniform1f(this.programs.drawParticles.locations.uniforms.nParticleDimensions, this.config.particles.nParticleDimensions);
+        this.gl.uniform1f(this.programs.drawParticles.locations.uniforms.particleSize, this.config.particles.particleSize);
     }
 
     setupDrawSceneTextureProgram(vertSrc, fragSrc) 
