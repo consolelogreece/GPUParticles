@@ -43,7 +43,7 @@ void main(){
 
     bool resetPosition = false;
     
-    // Check if at screen boundary
+    // Reset if at uv boundary
     if (pos.x > 1.0) { 
         pos.x = 0.0; 
     } 

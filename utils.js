@@ -3,7 +3,7 @@ function createShader(webglContext, type, src)
     var shader = webglContext.createShader(type);
     webglContext.shaderSource(shader, src);
     webglContext.compileShader(shader);
-    if (!webglContext.getShaderParameter(shader, webglContext.COMPILE_STATUS)) console.log(gl.getShaderInfoLog(shader));
+    if (!webglContext.getShaderParameter(shader, webglContext.COMPILE_STATUS)) console.log(webglContext.getShaderInfoLog(shader));
 
     return shader;
 }

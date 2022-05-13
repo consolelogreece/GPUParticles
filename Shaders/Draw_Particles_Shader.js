@@ -24,7 +24,7 @@ void main() {
     float y = 1.0 - 2.0 * (pos.y);
 
     gl_PointSize = 1.0;
-    gl_Position = vec4(x, y, 0, 1);
+    gl_Position = vec4(x, y, 0, 1.0);
 }`),
 
 frag: (
@@ -36,5 +36,5 @@ in vec4 v_colour;
 void main(){
     
     vec3 rgb = vec3(255.0, 163.0, 102.0)/ 255.0;
-    fragColor = vec4(rgb, 255.0); //vec4(0.8,0.6, 1., 1);
+    fragColor = vec4(rgb, 255.0); //vec4(0.8, 0.6, 1.0, 1.0);
 }`)};

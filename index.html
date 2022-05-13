@@ -1,7 +1,7 @@
-<!-- This is a learning exercise heavily inspired and helped by: https://blog.mapbox.com/how-i-built-a-wind-map-with-webgl-b63022b5537f -->
+<!-- This is a learning exercise inspired and hugely helped by: https://blog.mapbox.com/how-i-built-a-wind-map-with-webgl-b63022b5537f -->
 
-<body style="width: 100%; height:100%; background-color: #111;">
-    <canvas id="c"></canvas>
+<body>
+    <canvas class="centered" id="c"></canvas>
 </body>
 
 <script src="./utils.js"></script>
@@ -13,13 +13,12 @@
 <link rel="stylesheet" type="text/css" href="styles.css">
 
 <script>
-    var requestAnimationFrameReference;
     function draw()
     {
         particles.draw();
         
         // This tells the browser to keep rerunning this function whenever it deems fit (typically the refresh rate of the monitor).
-        requestAnimationFrameReference = requestAnimationFrame(draw);
+        requestAnimationFrame(draw);
     }
 
     function resize()
@@ -27,14 +26,9 @@
         // Keep it square because it looks cooler.
         var dimension = window.innerWidth;
         if (window.innerHeight < window.innerWidth) dimension = window.innerHeight;
-
-        var dimensionSizePixels = dimension / 100 * 95;
+        var dimensionSizePixels = dimension / 100 * 85;
 
         particles.resize(dimensionSizePixels, dimensionSizePixels)
-
-        window.cancelAnimationFrame(requestAnimationFrameReference);
-
-        draw();
     }
 
     var particles = new ParticlesExperiment(document.getElementById("c").getContext("webgl2", {preserveDrawingBuffer: false}));
@@ -44,3 +38,10 @@
     resize();
     draw();
 </script>
+
+<!--
+    feature ideas: 
+        particles paint a picture
+        add controls to change various settings/configs
+        add collisions using a collision texture described in that one article 
+-->

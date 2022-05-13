@@ -2,11 +2,22 @@ class ParticlesExperiment {
     constructor(gl)
     {
         this.gl = gl;
+        this.utils = utils;
 
+        this.setupState(150);
+        this.setupShaderPrograms();
+        this.setupTextures();
+        this.setupFrameBuffers();
+        
+        this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
+    }
+
+    setupState(nParticleDimensions = 100)
+    {
         this.config = {
             particles: {
-                nParticleDimensions: 100, // This will represent the size of the 2D particle texture. E.g., if nParticleDimensions = 100, there will be 100x100 particles.
-                nParticles: 100 * 100
+                nParticleDimensions: nParticleDimensions, // This will represent the size of the 2D particle texture. E.g., if nParticleDimensions = 100, there will be 100x100 particles.
+                nParticles: nParticleDimensions * nParticleDimensions
             }
         }
 
@@ -31,88 +42,113 @@ class ParticlesExperiment {
 
         // This is used tp draw 2 triangles to cover the whole texture. 
         // Thanks to the interpolation that happens in the shader, each pixel will therefore be covered, meaning every 
-        // particle will be covered as 1 pixel = 1 encoded particle and will thus be processed by the fragment shader.
+        // particle will be drawn as 1 pixel = 1 encoded particle and will thus be processed by the fragment shader.
         var triangleData = new Float32Array([-1.0, -1.0, 1.0, -1.0, -1.0,  1.0, -1.0,  1.0, 1.0, -1.0, 1.0,  1.0]); // two triangles together covering whole clip space;
 
         this.data = {
             positions: positionsFloatArray,
             pixels: pixels,
             clipSpaceTriangles: triangleData
-        }
+        }        
+    }
 
-        var drawParticlesProgram = utils.createProgramFromSrc(this.gl, drawParticlesProgramSrc.vert, drawParticlesProgramSrc.frag);
-        var drawSceneTextureProgram = utils.createProgramFromSrc(this.gl, drawSceneTextureProgramSrc.vert, drawSceneTextureProgramSrc.frag);
-        var fadeSceneTextureProgram = utils.createProgramFromSrc(this.gl, fadeSceneTextureProgramSrc.vert, fadeSceneTextureProgramSrc.frag);
-        var updateParticlesProgram = utils.createProgramFromSrc(this.gl, updateParticlesProgramSrc.vert, updateParticlesProgramSrc.frag);          
+    setupShaderPrograms()
+    {
+        this.programs = {};
+        this.setupDrawParticlesProgram(drawParticlesProgramSrc.vert, drawParticlesProgramSrc.frag);
+        this.setupDrawSceneTextureProgram(drawSceneTextureProgramSrc.vert, drawSceneTextureProgramSrc.frag);
+        this.setupFadeSceneTexture(fadeSceneTextureProgramSrc.vert, fadeSceneTextureProgramSrc.frag);
+        this.setupUpdateParticlesProgram(updateParticlesProgramSrc.vert, updateParticlesProgramSrc.frag); 
+    }
 
-        this.width = 800;
-        this.height = 800;
-        this.programs = {
-            drawParticles: {
-                program: drawParticlesProgram,
-                locations:{
-                    uniforms: {
-                        nParticleDimensions: this.gl.getUniformLocation(drawParticlesProgram, "nParticleDimensions")
-                    } 
-                },
-                buffers: {
-                    positionIndex: utils.createBindArrayBuffer(gl, drawParticlesProgram, "a_positionIndex", this.data.positions, gl.STATIC_DRAW)
-                }
+    setupDrawParticlesProgram(vertSrc, fragSrc)
+    {
+        var program = this.utils.createProgramFromSrc(this.gl, vertSrc, fragSrc);
+
+        this.programs.drawParticles = {
+            program: program,
+            locations:{
+                uniforms: {
+                    nParticleDimensions: this.gl.getUniformLocation(program, "nParticleDimensions")
+                } 
             },
-            drawSceneTexture: {
-                program: drawSceneTextureProgram,
-                buffers: {
-                    wholeClipSpaceTriangleBuffer: utils.createBindArrayBuffer(gl, drawSceneTextureProgram, "a_xycoord", this.data.clipSpaceTriangles, gl.STATIC_DRAW)
-                }
-            },
-            fadeSceneTexture: {
-                program: fadeSceneTextureProgram,
-                buffers: {
-                    wholeClipSpaceTriangleBuffer: utils.createBindArrayBuffer(gl, fadeSceneTextureProgram, "a_xycoord", this.data.clipSpaceTriangles, gl.STATIC_DRAW)
-                }
-            },
-            updateParticles: {
-                program: updateParticlesProgram,
-                locations: {
-                    uniforms: {
-                        randomSeed: gl.getUniformLocation(updateParticlesProgram, "randomSeed")  
-                    }
-                },
-                buffers: {
-                    wholeClipSpaceTriangleBuffer: utils.createBindArrayBuffer(gl, updateParticlesProgram, "a_xycoord", this.data.clipSpaceTriangles, gl.STATIC_DRAW)
-                }
+            buffers: {
+                positionIndex: this.utils.createBindArrayBuffer(this.gl, program, "a_positionIndex", this.data.positions, this.gl.STATIC_DRAW)
             }
         }
 
+        this.gl.useProgram(program);
+        this.gl.uniform1f(this.programs.drawParticles.locations.uniforms.nParticleDimensions, this.config.particles.nParticleDimensions)
+    }
+
+    setupDrawSceneTextureProgram(vertSrc, fragSrc) 
+    {
+        var program = this.utils.createProgramFromSrc(this.gl, vertSrc, fragSrc);
+
+        this.programs.drawSceneTexture = {
+            program: program,
+            buffers: {
+                wholeClipSpaceTriangleBuffer: this.utils.createBindArrayBuffer(this.gl, program, "a_xycoord", this.data.clipSpaceTriangles, this.gl.STATIC_DRAW)
+            }
+        }
+    }
+
+    setupFadeSceneTexture(vertSrc, fragSrc)
+    {
+        var program = this.utils.createProgramFromSrc(this.gl, vertSrc, fragSrc);
+
+        this.programs.fadeSceneTexture = {
+            program: program,
+            buffers: {
+                wholeClipSpaceTriangleBuffer: this.utils.createBindArrayBuffer(this.gl, program, "a_xycoord", this.data.clipSpaceTriangles, this.gl.STATIC_DRAW)
+            }
+        }
+    }
+
+    setupUpdateParticlesProgram(vertSrc, fragSrc)
+    {
+        var program = this.utils.createProgramFromSrc(this.gl, vertSrc, fragSrc);
+
+        this.programs.updateParticles = {
+            program: program,
+            locations: {
+                uniforms: {
+                    randomSeed: this.gl.getUniformLocation(program, "randomSeed")  
+                }
+            },
+            buffers: {
+                wholeClipSpaceTriangleBuffer: this.utils.createBindArrayBuffer(this.gl, program, "a_xycoord", this.data.clipSpaceTriangles, this.gl.STATIC_DRAW)
+            }
+        }
+    }
+
+    setupTextures()
+    {
         this.textures = {
             // Create the textures that will store particle position information.
-            pixelLocationTexture1: utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.config.particles.nParticleDimensions, 
+            pixelLocationTexture1: this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.config.particles.nParticleDimensions, 
                 this.config.particles.nParticleDimensions, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.data.pixels),
-            pixelLocationTexture2: utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.config.particles.nParticleDimensions, 
+            pixelLocationTexture2: this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.config.particles.nParticleDimensions, 
                 this.config.particles.nParticleDimensions, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.data.pixels),
 
             // Create the textures that will be useful to blend the trails later
-            sceneTexture1: utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.width, this.height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null),
-            sceneTexture2: utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.width, this.height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null)
+            sceneTexture1: this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.width, this.height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null),
+            sceneTexture2: this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.width, this.height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null)
         }
+    }
 
+    setupFrameBuffers()
+    {
         this.frameBuffers = {
             calculationframebuffer: this.gl.createFramebuffer(),
             bgframebuffer: this.gl.createFramebuffer()
         }
-
-        this.gl.useProgram(this.programs.drawParticles.program);
-
-        this.gl.uniform1f(this.programs.drawParticles.locations.uniforms.nParticleDimensions, this.config.particles.nParticleDimensions)
-
-        this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
-
     }
 
     resize(width, height)
     {
-        this.textures.sceneTexture1 = utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, width, height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null);
-        this.textures.sceneTexture2 = utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, width, height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null);
+        this.textures.sceneTexture1 = this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, width, height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null);
+        this.textures.sceneTexture2 = this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, width, height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null);
 
         this.gl.canvas.width = width;
         this.gl.canvas.height = height;
