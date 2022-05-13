@@ -1,10 +1,10 @@
 class ParticlesExperiment {
-    constructor(gl, nParticleDimensions, particleSize, trailLength, respawnRate)
+    constructor(gl, nParticleDimensions, particleSize, trailLength, respawnThreshold)
     {
         this.gl = gl;
         this.utils = utils;
 
-        this.setState(nParticleDimensions, particleSize, trailLength,respawnRate);
+        this.setState(nParticleDimensions, particleSize, trailLength, respawnThreshold);
         this.setupShaderPrograms();
         this.setupTextures();
         this.setupFrameBuffers();
@@ -12,7 +12,7 @@ class ParticlesExperiment {
         this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
     }
 
-    setState(nParticleDimensions = 100, particleSize = 1, trailLength = 14, respawnRate = 1)
+    setState(nParticleDimensions = 100, particleSize = 1, trailLength = 14, respawnThreshold = 9940)
     {
         this.config = {
             particles: {
@@ -20,7 +20,7 @@ class ParticlesExperiment {
                 nParticles: nParticleDimensions * nParticleDimensions,
                 particleSize: particleSize,
                 trailLength: (1 - (trailLength / 100)), // 1- is necessary as 0 is actually the long trail, so we must invert.
-                respawnRate: respawnRate
+                respawnThreshold: respawnThreshold / 10000
             }
         }
 
@@ -128,13 +128,17 @@ class ParticlesExperiment {
             program: program,
             locations: {
                 uniforms: {
-                    randomSeed: this.gl.getUniformLocation(program, "randomSeed")  
+                    randomSeed: this.gl.getUniformLocation(program, "randomSeed"),
+                    respawnThreshold: this.gl.getUniformLocation(program, "respawnPositionThreshold")  
                 }
             },
             buffers: {
                 wholeClipSpaceTriangleBuffer: this.utils.createBindArrayBuffer(this.gl, program, "a_xycoord", this.data.clipSpaceTriangles, this.gl.STATIC_DRAW)
             }
         }
+
+        this.gl.useProgram(program);
+        this.gl.uniform1f(this.programs.updateParticles.locations.uniforms.respawnThreshold, this.config.particles.respawnThreshold);
     }
 
     setupTextures()

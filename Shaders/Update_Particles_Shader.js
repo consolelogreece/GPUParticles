@@ -33,6 +33,7 @@ function GetUpdateParticlesProgramSrc(userText)
         
         uniform sampler2D particles;
         uniform float randomSeed;
+        uniform float respawnPositionThreshold; // This will be between 0 and 1, the lower the threshold, the more likely a particle is to have it's position reset.
         
         out vec4 fragColor;
         in vec2 v_texturePosition;
@@ -77,7 +78,7 @@ function GetUpdateParticlesProgramSrc(userText)
                 pos.y = 1.0 - mod(pos.y * -1.0, 1.0);
             }
         
-            if (rand(vec2(pos + v_texturePosition) * randomSeed) > 0.994)
+            if (rand(vec2(pos + v_texturePosition) * randomSeed) > respawnPositionThreshold)
             {
                 pos.x = rand(vec2(pos.y, v_texturePosition));
                 pos.y = rand(vec2(pos.x, colour.a));
