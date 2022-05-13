@@ -58,6 +58,8 @@ class ParticlesExperiment {
         this.setupDrawParticlesProgram(drawParticlesProgramSrc.vert, drawParticlesProgramSrc.frag);
         this.setupDrawSceneTextureProgram(drawSceneTextureProgramSrc.vert, drawSceneTextureProgramSrc.frag);
         this.setupFadeSceneTexture(fadeSceneTextureProgramSrc.vert, fadeSceneTextureProgramSrc.frag);
+
+        var updateParticlesProgramSrc = GetUpdateParticlesProgramSrc();
         this.setupUpdateParticlesProgram(updateParticlesProgramSrc.vert, updateParticlesProgramSrc.frag); 
     }
 
@@ -162,7 +164,6 @@ class ParticlesExperiment {
 
     updateParticlePositions()
     {
-      
         // If blend is enabled, it messes up positons completely as alpha stores position location!
         this.gl.disable(this.gl.BLEND);
 

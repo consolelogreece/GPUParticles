@@ -1,7 +1,18 @@
 <!-- This is a learning exercise inspired and hugely helped by: https://blog.mapbox.com/how-i-built-a-wind-map-with-webgl-b63022b5537f -->
 
 <body>
-    <canvas class="centered" id="c"></canvas>
+    <div id="particlesApp" class="centered">
+        <div id="particlesDisplayContainer">
+            <canvas id="c"></canvas>
+        </div>
+        <div id="controls">
+            <textarea id="formula" rows="4" cols="50">
+                
+            </textarea>
+            <button class="btn buttonWood" onclick="update()">Update</button>
+            <button class="btn buttonWood" onclick="reset()">Reset</button>
+        </div>
+    </div>
 </body>
 
 <script src="./utils.js"></script>
@@ -31,6 +42,31 @@
         particles.resize(dimensionSizePixels, dimensionSizePixels)
     }
 
+    var formulaEl = document.getElementById("formula");
+
+    var defaultText = ("//currentPosition is passed in.\n//Coordinates range from 0 to 1000.\n\nvec2 newPosition = vec2(0);\n\n" +
+    "newPosition.x = currentPosition.x + sin(currentPosition.y / 100.0)\n\n" + 
+    "newPosition.y = currentPosition.y + sin(currentPosition.x / 100.0)\n\n" +
+    "return newPosition;");        
+
+    function update()
+    {
+        var src = formulaEl.value;
+        
+        var updateParticlesProgramSrc = GetUpdateParticlesProgramSrc(src);
+
+        particles.setupUpdateParticlesProgram(updateParticlesProgramSrc.vert, updateParticlesProgramSrc.frag); 
+    }
+
+    function reset()
+    {
+        formulaEl.value = defaultText;
+        
+        update();
+    }
+
+    formulaEl.value = defaultText;
+
     var particles = new ParticlesExperiment(document.getElementById("c").getContext("webgl2", {preserveDrawingBuffer: false}));
 
     window.addEventListener('resize', resize); 
@@ -43,5 +79,10 @@
     feature ideas: 
         particles paint a picture
         add controls to change various settings/configs
+            particles size
+            particle count
+            particle colour
+            background colour
+            trail length (dimming effect)
         add collisions using a collision texture described in that one article 
 -->
