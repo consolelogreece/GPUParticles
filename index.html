@@ -8,11 +8,8 @@
         <div id="controls">
             <h3 class="controlAreaLabel">Formula</h3>
             <div class="controlElementContainer" id="formulaContainer">
-                <textarea id="formula" rows="4" cols="50">
-                    
-                </textarea>
+                <textarea id="formula" rows="4" cols="50"></textarea>
             </div>
-
             <h3 class="controlAreaLabel">Particles Config</h3>
             <div class="controlElementContainer" id="particleConfigContainer">
                 <div class="subcontrolContainer">
@@ -25,7 +22,7 @@
                 </div>
                 <div class="subcontrolContainer">
                     <h4 class="controlLabel">Trail length</h4> 
-                    <input type="range" min="1" max="100" value="50" class="slider" id="particleTrailLengthRange">
+                    <input type="range" min="0" max="100" value="14" class="slider" id="particleTrailLengthRange">
                 </div>
                 <div class="subcontrolContainer">
                     <h4 class="controlLabel">Respawn rate</h4> 
@@ -113,7 +110,7 @@
         formulaEl.value = defaultText;
         countEl.value = 100;
         sizeEl.value = 1;
-        trailLengthEl.value = 1;
+        trailLengthEl.value = 14;
         respawnRateEl.value = 1;
 
         update();
@@ -130,6 +127,7 @@
 
     window.addEventListener('resize', resize); 
 
+    onParticleCountInput();
     reset();
     resize();
     draw();

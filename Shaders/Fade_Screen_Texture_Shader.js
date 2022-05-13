@@ -13,17 +13,19 @@ void main() {
 frag: (
 `#version 300 es
 precision mediump float;
-out vec4 fragColor;
+
+uniform sampler2D sampler;
+uniform float trailLength; // This will be between 0 and 1, with the 0 being for the longest trail.
 
 in vec2 v_textureCoord;
-uniform sampler2D sampler;
+out vec4 fragColor;
 
 void main(){
     vec4 colour = texture(sampler, (1.0 + v_textureCoord) / 2.0);
 
     vec3 rgb = vec3(26.0, 10.0, 0.0) / 255.0;
 
-    // This fades to the background colour with 50% alpha for the trail effect.
-    fragColor = mix(colour, vec4(rgb.rgb, 0.3), 0.14);
+    // This fades to the background colour with alpha for the trail effect.
+    fragColor = mix(colour, vec4(rgb.rgb, 1.0), trailLength);
 }
 `)};

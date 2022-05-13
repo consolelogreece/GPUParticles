@@ -12,17 +12,19 @@ class ParticlesExperiment {
         this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
     }
 
-    setState(nParticleDimensions = 100, particleSize = 1, trailLength = 1, respawnRate = 1)
+    setState(nParticleDimensions = 100, particleSize = 1, trailLength = 14, respawnRate = 1)
     {
         this.config = {
             particles: {
                 nParticleDimensions: nParticleDimensions, // This will represent the size of the 2D particle texture. E.g., if nParticleDimensions = 100, there will be 100x100 particles.
                 nParticles: nParticleDimensions * nParticleDimensions,
                 particleSize: particleSize,
-                trailLength: trailLength,
+                trailLength: (1 - (trailLength / 100)), // 1- is necessary as 0 is actually the long trail, so we must invert.
                 respawnRate: respawnRate
             }
         }
+
+        console.log(this.config)
 
         // We need an array with the same number of indexes as the pixel buffer. This is basically 
         // how we get the vertex shader to run X times for each pixel of the partcile position texture. 
@@ -60,7 +62,7 @@ class ParticlesExperiment {
         this.programs = {};
         this.setupDrawParticlesProgram(drawParticlesProgramSrc.vert, drawParticlesProgramSrc.frag);
         this.setupDrawSceneTextureProgram(drawSceneTextureProgramSrc.vert, drawSceneTextureProgramSrc.frag);
-        this.setupFadeSceneTexture(fadeSceneTextureProgramSrc.vert, fadeSceneTextureProgramSrc.frag);
+        this.setupFadeSceneTextureProgram(fadeSceneTextureProgramSrc.vert, fadeSceneTextureProgramSrc.frag);
 
         var updateParticlesProgramSrc = GetUpdateParticlesProgramSrc();
         this.setupUpdateParticlesProgram(updateParticlesProgramSrc.vert, updateParticlesProgramSrc.frag); 
@@ -98,16 +100,24 @@ class ParticlesExperiment {
         }
     }
 
-    setupFadeSceneTexture(vertSrc, fragSrc)
+    setupFadeSceneTextureProgram(vertSrc, fragSrc)
     {
         var program = this.utils.createProgramFromSrc(this.gl, vertSrc, fragSrc);
 
         this.programs.fadeSceneTexture = {
             program: program,
+            locations: {
+                uniforms: {
+                    trailLength:  this.gl.getUniformLocation(program, "trailLength")  
+                }
+            },
             buffers: {
                 wholeClipSpaceTriangleBuffer: this.utils.createBindArrayBuffer(this.gl, program, "a_xycoord", this.data.clipSpaceTriangles, this.gl.STATIC_DRAW)
             }
         }
+
+        this.gl.useProgram(program);
+        this.gl.uniform1f(this.programs.fadeSceneTexture.locations.uniforms.trailLength, this.config.particles.trailLength);
     }
 
     setupUpdateParticlesProgram(vertSrc, fragSrc)
@@ -206,6 +216,9 @@ class ParticlesExperiment {
 
     drawToScreen()
     {
+        // This is what allows for alpha to work so we can get trails.
+        this.gl.enable(this.gl.BLEND);
+
         this.fadeLastFrame();
         this.drawParticlesToSceneTexture();
         this.drawScreenTextureToCanvas();
@@ -218,9 +231,6 @@ class ParticlesExperiment {
 
     fadeLastFrame()
     {
-        // This is what allows for alpha to work so we can get trails.
-        this.gl.enable(this.gl.BLEND);
-
         // Copy background 1 to background 2, which also applies fading in the shader.
         this.gl.useProgram(this.programs.fadeSceneTexture.program);
         this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.frameBuffers.bgframebuffer);
