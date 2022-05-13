@@ -2,6 +2,8 @@ body {
     width:100%; 
     height:100%;
     background: radial-gradient(circle farthest-corner, #D2B179, #4D2919);
+    font-family: Garamond;
+    font-weight: bold;
 }
 
 #particlesApp {
@@ -22,7 +24,7 @@ body {
 }
 
 .btn {
-    float:right;
+    width: 45%;
 }
 
 #c {    
@@ -36,7 +38,27 @@ body {
   min-height: 100%;
   background-color: #180b04;
   border: 6px solid #180b04; 
+  border-right: 12px solid #180b04;
+
   box-sizing: border-box;
+  position: relative;
+}
+
+.controlLabel {
+    color: #ddc9b4;
+    font-style:normal;
+    font-weight: bold;
+    margin-bottom: 1%;
+}
+
+.controlAreaLabel {
+    color: #ddc9b4;
+    font-style:normal;
+    font-weight: bold;
+}
+
+.subcontrolContainer {
+    padding-bottom: 1%;
 }
 
 #particlesDisplayContainer
@@ -48,18 +70,27 @@ body {
     text-align: left;
     resize: none;
     width: 100%;
-    height: 20%;
+    height: 100%;
     background-color: #ddc9b4;
     color: #422800;
-    font-size: 12px;
+    font-size: 11px;
+    border:none;
+}
+
+#formulaContainer {
+    height: 25%;
+}
+
+.controlElementContainer {
+    border-bottom: 2px solid #ddc9b4;
+    padding-bottom: 5%;
 }
 
 /*Stolen from: https://getcssscan.com/css-buttons-examples*/
 .buttonWood {
   background-color: #ddc9b4;
-  border: 2px solid #422800;
+  border: 1px solid #422800;
   border-radius: 4px;
-  box-shadow: #422800 2px 2px 0 0;
   color: #422800;
   cursor: pointer;
   display: inline-block;
@@ -82,3 +113,45 @@ body {
   box-shadow: #422800 2px 2px 0 0;
   transform: translate(2px, 2px);
 }
+
+#btnReset {
+    float:left;
+}
+
+#btnUpdate
+{
+    float:right;
+}
+
+#buttonsContainer {
+    width: 100%;
+    position: absolute;   
+    bottom: 0;
+}
+
+/*Stolen from: https://www.w3schools.com/howto/tryit.asp?filename=tryhow_css_rangeslider*/
+.slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 10px;
+    background: #ddc9b4;
+    outline: none;
+  }
+  
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 15px;
+    height: 15px;
+    background: #422800;
+    cursor: pointer;
+    border: 2px solid #ddc9b4;
+  }
+  
+  .slider::-moz-range-thumb {
+    width: 15px;
+    height: 15px;
+    background: #422800;
+    cursor: pointer;
+    border: 2px solid #ddc9b4;
+  }

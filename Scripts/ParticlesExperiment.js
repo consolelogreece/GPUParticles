@@ -1,10 +1,10 @@
 class ParticlesExperiment {
-    constructor(gl)
+    constructor(gl, nParticleDimensions, particleSize, trailLength, respawnRate)
     {
         this.gl = gl;
         this.utils = utils;
 
-        this.setupState(150);
+        this.setState(nParticleDimensions, particleSize, trailLength,respawnRate);
         this.setupShaderPrograms();
         this.setupTextures();
         this.setupFrameBuffers();
@@ -12,12 +12,15 @@ class ParticlesExperiment {
         this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
     }
 
-    setupState(nParticleDimensions = 100)
+    setState(nParticleDimensions = 100, particleSize = 1, trailLength = 1, respawnRate = 1)
     {
         this.config = {
             particles: {
                 nParticleDimensions: nParticleDimensions, // This will represent the size of the 2D particle texture. E.g., if nParticleDimensions = 100, there will be 100x100 particles.
-                nParticles: nParticleDimensions * nParticleDimensions
+                nParticles: nParticleDimensions * nParticleDimensions,
+                particleSize: particleSize,
+                trailLength: trailLength,
+                respawnRate: respawnRate
             }
         }
 
@@ -132,10 +135,10 @@ class ParticlesExperiment {
                 this.config.particles.nParticleDimensions, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.data.pixels),
             pixelLocationTexture2: this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.config.particles.nParticleDimensions, 
                 this.config.particles.nParticleDimensions, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.data.pixels),
-
+                
             // Create the textures that will be useful to blend the trails later
-            sceneTexture1: this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.width, this.height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null),
-            sceneTexture2: this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.width, this.height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null)
+            sceneTexture1: this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.canvas.width, this.gl.canvas.width, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null),
+            sceneTexture2: this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.canvas.width, this.gl.canvas.width, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null)
         }
     }
 

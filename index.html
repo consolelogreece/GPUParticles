@@ -6,11 +6,48 @@
             <canvas id="c"></canvas>
         </div>
         <div id="controls">
-            <textarea id="formula" rows="4" cols="50">
-                
-            </textarea>
-            <button class="btn buttonWood" onclick="update()">Update</button>
-            <button class="btn buttonWood" onclick="reset()">Reset</button>
+            <h3 class="controlAreaLabel">Formula</h3>
+            <div class="controlElementContainer" id="formulaContainer">
+                <textarea id="formula" rows="4" cols="50">
+                    
+                </textarea>
+            </div>
+
+            <h3 class="controlAreaLabel">Particles Config</h3>
+            <div class="controlElementContainer" id="particleConfigContainer">
+                <div class="subcontrolContainer">
+                    <h4 class="controlLabel">Count: <span id="particleCountLabel"></span></h4> 
+                    <input type="range" min="1" max="1024" value="150" class="slider" oninput="onParticleCountInput()" id="particleCountRange">
+                </div>
+                <div class="subcontrolContainer">
+                    <h4 class="controlLabel">Size</h4> 
+                    <input type="range" min="1" max="20" value="2" class="slider" id="particleSizeRange">
+                </div>
+                <div class="subcontrolContainer">
+                    <h4 class="controlLabel">Trail length</h4> 
+                    <input type="range" min="1" max="100" value="50" class="slider" id="particleTrailLengthRange">
+                </div>
+                <div class="subcontrolContainer">
+                    <h4 class="controlLabel">Respawn rate</h4> 
+                    <input type="range" min="1" max="100" value="50" class="slider" id="particleRespawnRateRange">
+                </div>
+            </div>
+
+            <!-- <h3 class="controlAreaLabel">Colour Config</h3>
+            <div class="controlElementContainer" id="colourConfigContainer">
+                <div class="subcontrolContainer">
+                    <h4 class="controlLabel">Particle colour</h4>
+                    <input type="range" min="1" max="100" value="50" class="slider" id="particleColourRange">
+                </div>
+                <div class="subcontrolContainer">
+                    <h4 class="controlLabel">Background colour</h4>
+                    <input type="range" min="1" max="100" value="50" class="slider" id="particleBackgroundColourRange">
+                </div>                
+            </div> -->
+            <div id="buttonsContainer">
+                <button id="btnUpdate" class="btn buttonWood" onclick="update()">Update</button>
+                <button id="btnReset" class="btn buttonWood" onclick="reset()">Reset</button>
+            </div>
         </div>
     </div>
 </body>
@@ -24,6 +61,17 @@
 <link rel="stylesheet" type="text/css" href="styles.css">
 
 <script>
+    var formulaEl = document.getElementById("formula");
+    var countEl = document.getElementById("particleCountRange");
+    var sizeEl =  document.getElementById("particleSizeRange");
+    var trailLengthEl = document.getElementById("particleTrailLengthRange");
+    var respawnRateEl = document.getElementById("particleRespawnRateRange");
+
+    var defaultText = ("//currentPosition is passed in.\n//Coordinates range from 0 to 1000.\n\nvec2 newPosition = vec2(0);\n\n" +
+    "newPosition.x = currentPosition.x + sin(currentPosition.y / 100.0);\n\n" + 
+    "newPosition.y = currentPosition.y + sin(currentPosition.x / 100.0);\n\n" +
+    "return newPosition;");
+
     function draw()
     {
         particles.draw();
@@ -35,42 +83,54 @@
     function resize()
     {
         // Keep it square because it looks cooler.
-        var dimension = window.innerWidth;
+        var dimensionW = window.innerWidth / 100 * 70;
+        var dimensionH = window.innerHeight / 100 * 90;
+        var dimension = window.innerHeight / 100 * 90;
+
         if (window.innerHeight < window.innerWidth) dimension = window.innerHeight;
-        var dimensionSizePixels = dimension / 100 * 85;
+        var dimensionSizePixels = dimension / 100 *95;
 
         particles.resize(dimensionSizePixels, dimensionSizePixels)
     }
 
-    var formulaEl = document.getElementById("formula");
-
-    var defaultText = ("//currentPosition is passed in.\n//Coordinates range from 0 to 1000.\n\nvec2 newPosition = vec2(0);\n\n" +
-    "newPosition.x = currentPosition.x + sin(currentPosition.y / 100.0);\n\n" + 
-    "newPosition.y = currentPosition.y + sin(currentPosition.x / 100.0);\n\n" +
-    "return newPosition;");        
-
     function update()
     {
         var src = formulaEl.value;
-        
-        var updateParticlesProgramSrc = GetUpdateParticlesProgramSrc(src);
+        var particleCount = countEl.value;
+        var particleSize = sizeEl.value;
+        var trailLength = trailLengthEl.value;
+        var respawnRate = respawnRateEl.value;
 
-        particles.setupUpdateParticlesProgram(updateParticlesProgramSrc.vert, updateParticlesProgramSrc.frag); 
+        particles = new ParticlesExperiment(document.getElementById("c").getContext("webgl2"), particleCount, particleSize, trailLength, respawnRate)
+
+        var updateParticlesProgramSrc = GetUpdateParticlesProgramSrc(src);
+        
+        particles.setupUpdateParticlesProgram(updateParticlesProgramSrc.vert, updateParticlesProgramSrc.frag);      
     }
 
     function reset()
     {
         formulaEl.value = defaultText;
-        
+        countEl.value = 100;
+        sizeEl.value = 1;
+        trailLengthEl.value = 1;
+        respawnRateEl.value = 1;
+
         update();
     }
 
-    formulaEl.value = defaultText;
+    function onParticleCountInput()
+    {
+       var lbl = document.getElementById("particleCountLabel");
 
-    var particles = new ParticlesExperiment(document.getElementById("c").getContext("webgl2", {preserveDrawingBuffer: false}));
+       lbl.innerHTML = countEl.value * countEl.value;
+    }
+
+    var particles;
 
     window.addEventListener('resize', resize); 
 
+    reset();
     resize();
     draw();
 </script>

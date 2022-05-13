@@ -3,6 +3,7 @@ vert: (
 `#version 300 es
 uniform sampler2D particles;
 uniform float nParticleDimensions;
+uniform float pointSize;
 in vec2 a_positionIndex; // This stores the xy component to find the pixel.
 out vec4 v_colour;
 
