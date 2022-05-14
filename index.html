@@ -80,6 +80,8 @@
 
     function draw()
     {
+        if (!particles) return;
+        
         particles.draw();
         
         // This tells the browser to keep rerunning this function whenever it deems fit (typically the refresh rate of the monitor).
@@ -98,8 +100,11 @@
         particles.resize(dimensionSizePixels, dimensionSizePixels)
     }
 
+    var loading = false;
     async function update(img)
     {
+        if (loading) return;
+        loading = true;
         cancelAnimationFrame(requestAnimationFrameReference);
 
         var src = formulaEl.value;
@@ -113,10 +118,13 @@
 
         var img = await loadImage(imageUrl);
 
-        particles = new ParticlesExperiment(document.getElementById("c").getContext("webgl2"), particleCount, particleSize, trailLength, respawnRate, particleColour, backgroundColour, img)
+        particles = new ParticlesExperiment(document.getElementById("c").getContext("webgl2"), particleCount, particleSize, trailLength, respawnRate, particleColour, backgroundColour, img);
 
         var updateParticlesProgramSrc = GetUpdateParticlesProgramSrc(src);
+
         particles.setupUpdateParticlesProgram(updateParticlesProgramSrc.vert, updateParticlesProgramSrc.frag); 
+
+        loading = false;
 
         resize();
         draw();
@@ -177,11 +185,15 @@
         lbl.innerHTML = respawnRateEl.value / 10000;
     }
 
-    const loadImage = (imageUrlEl) => new Promise(resolve => {
+    const loadImage = (imageUrlEl) => new Promise(resolve => 
+    {
         const img = new Image();
         img.onload = () => resolve(img);
         img.onerror = () => resolve(null)
+        img.crossOrigin = 'anonymous';
         img.src = imageUrlEl;
+        
+        return null;
     })
 
     var particles;
