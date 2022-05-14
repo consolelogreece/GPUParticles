@@ -238,3 +238,13 @@ button:focus {
     float:left; 
 }
 
+input::-webkit-calendar-picker-indicator {
+    display: none;/* remove default arrow */
+  }
+.myarrow:after {
+    content: url(https://i.stack.imgur.com/i9WFO.png);
+    margin-left: -20px; 
+    padding: .1em;
+    pointer-events:none;
+    cursor: pointer;
+}

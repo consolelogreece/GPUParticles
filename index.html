@@ -37,7 +37,7 @@
             <div class="controlElementContainer" id="colourConfigContainer">
                 <div class="subcontrolContainer">
                     <h4 class="controlLabel">Particle</h4>
-                    <input type="color" class="colourpicker" id="particleColour" value="#ffa366">
+                    <input type="color" class="colourpicker" id="particleColour"  onchange="onParticleColourChange()" value="#ffa366">
                 </div>
                 <div class="subcontrolContainer">
                     <h4 class="controlLabel">Background</h4>
@@ -47,7 +47,15 @@
             <div class="controlElementContainer" id="imgConfigContainer">
                 <div class="subcontrolContainer">
                     <h4 class="controlLabel">Image URL  <span class="infoLabel">(The particles will paint this image)</span></h4> 
-                    <input id="imageUrl" placeholder="www.coolexamplesite.com/example.png">
+                    <input id="imageUrl" placeholder="Click for choices/enter your own url (imgur.com/example.png)" type="text" list="images" />
+                    <datalist id="images">
+                        <option value="https://i.imgur.com/QALgrNJ.jpeg">Mountains & Rivers</option>
+                        <option value="https://i.imgur.com/nE2WMAF.jpeg">Indian Sunset</option>
+                        <option value="https://i.imgur.com/cmAtU7Y.jpeg">Graffiti</option>
+                        <option value="https://i.imgur.com/E6e6vjP.jpeg">Space Cat</option>
+                        <option value="https://i.imgur.com/rel7mXd.jpeg">Fantasy</option>
+                        <option value="https://i.imgur.com/8tcxHWh.jpeg">Low Poly Mountains</option>
+                    </datalist>
                 </div>               
             </div>
             <div id="buttonsContainer">
@@ -188,6 +196,11 @@
         var lbl = document.getElementById("particleRespawnRateLabel");
 
         lbl.innerHTML = respawnRateEl.value / 10000;
+    }
+
+    function onParticleColourChange()
+    {
+        imageUrlEl.value = "";
     }
 
     const loadImage = (imageUrlEl) => new Promise(resolve => 
