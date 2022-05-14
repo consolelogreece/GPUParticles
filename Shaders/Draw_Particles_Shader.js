@@ -31,11 +31,10 @@ void main() {
 frag: (
 `#version 300 es
 precision mediump float;
+uniform vec3 particleColour;
 out vec4 fragColor;
 in vec4 v_colour;
 
 void main(){
-    
-    vec3 rgb = vec3(255.0, 163.0, 102.0)/ 255.0;
-    fragColor = vec4(rgb, 255.0); //vec4(0.8, 0.6, 1.0, 1.0);
+    fragColor = vec4(particleColour / 255.0, 255.0); 
 }`)};

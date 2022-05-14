@@ -1,10 +1,10 @@
 class ParticlesExperiment {
-    constructor(gl, nParticleDimensions, particleSize, trailLength, respawnThreshold)
+    constructor(gl, nParticleDimensions, particleSize, trailLength, respawnThreshold, particleColour, backgroundColour)
     {
         this.gl = gl;
         this.utils = utils;
 
-        this.setState(nParticleDimensions, particleSize, trailLength, respawnThreshold);
+        this.setState(nParticleDimensions, particleSize, trailLength, respawnThreshold, particleColour, backgroundColour);
         this.setupShaderPrograms();
         this.setupTextures();
         this.setupFrameBuffers();
@@ -12,7 +12,7 @@ class ParticlesExperiment {
         this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
     }
 
-    setState(nParticleDimensions = 100, particleSize = 1, trailLength = 14, respawnThreshold = 9940)
+    setState(nParticleDimensions, particleSize, trailLength, respawnThreshold, particleColour, backgroundColour)
     {
         this.config = {
             particles: {
@@ -21,6 +21,10 @@ class ParticlesExperiment {
                 particleSize: particleSize,
                 trailLength: (1 - (trailLength / 100)), // 1- is necessary as 0 is actually the long trail, so we must invert.
                 respawnThreshold: respawnThreshold / 10000
+            },
+            colours: {
+                particleColour: new Uint8Array(particleColour),
+                backgroundColour: new Uint8Array(backgroundColour)
             }
         }
 
@@ -75,7 +79,8 @@ class ParticlesExperiment {
             locations:{
                 uniforms: {
                     nParticleDimensions: this.gl.getUniformLocation(program, "nParticleDimensions"),
-                    particleSize: this.gl.getUniformLocation(program, "particleSize")
+                    particleSize: this.gl.getUniformLocation(program, "particleSize"),
+                    particleColour: this.gl.getUniformLocation(program, "particleColour")
                 } 
             },
             buffers: {
@@ -83,9 +88,11 @@ class ParticlesExperiment {
             }
         }
 
+        console.log(this.config.colours.particleColour)
         this.gl.useProgram(program);
         this.gl.uniform1f(this.programs.drawParticles.locations.uniforms.nParticleDimensions, this.config.particles.nParticleDimensions);
         this.gl.uniform1f(this.programs.drawParticles.locations.uniforms.particleSize, this.config.particles.particleSize);
+        this.gl.uniform3fv(this.programs.drawParticles.locations.uniforms.particleColour, this.config.colours.particleColour);
     }
 
     setupDrawSceneTextureProgram(vertSrc, fragSrc) 
@@ -108,7 +115,8 @@ class ParticlesExperiment {
             program: program,
             locations: {
                 uniforms: {
-                    trailLength:  this.gl.getUniformLocation(program, "trailLength")  
+                    trailLength:  this.gl.getUniformLocation(program, "trailLength"),
+                    backgroundColour: this.gl.getUniformLocation(program, "backgroundColour")  
                 }
             },
             buffers: {
@@ -118,6 +126,7 @@ class ParticlesExperiment {
 
         this.gl.useProgram(program);
         this.gl.uniform1f(this.programs.fadeSceneTexture.locations.uniforms.trailLength, this.config.particles.trailLength);
+        this.gl.uniform3fv(this.programs.fadeSceneTexture.locations.uniforms.backgroundColour, this.config.colours.backgroundColour);
     }
 
     setupUpdateParticlesProgram(vertSrc, fragSrc)
@@ -191,19 +200,19 @@ class ParticlesExperiment {
 
         this.gl.uniform1f(this.programs.updateParticles.locations.uniforms.randomSeed, seed);
 
-        // //This is how we write to a texture. We use a framebuffer and write to that instead of the default framebuffer (the canvas). 
+        // This is how we write to a texture. We use a framebuffer and write to that instead of the default framebuffer (the canvas). 
         this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.frameBuffers.calculationframebuffer);
 
-        // // Set the viewport. There numbers are the dimensions of the texture containing the particle location info.
+        // Set the viewport. There numbers are the dimensions of the texture containing the particle location info.
         this.gl.viewport(0, 0, this.config.particles.nParticleDimensions, this.config.particles.nParticleDimensions);
 
-        // // The shader should read from texture 1 to get the particle locations that were drawn previously.
+        // The shader should read from texture 1 to get the particle locations that were drawn previously.
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures.pixelLocationTexture1);
 
-        // // Tell the frame buffer to write to texture 2.
+        // Tell the frame buffer to write to texture 2.
         this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this.textures.pixelLocationTexture2, 0);
 
-        // // Set up the triangles that cover the whole texture so that each pixel as ran in the fragment shader via interpolation
+        // Set up the triangles that cover the whole texture so that each pixel as ran in the fragment shader via interpolation.
         // Have to rebind the buffer and do the attribpointer stuff each frame. Unsure as to sure why.
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.programs.updateParticles.buffers.wholeClipSpaceTriangleBuffer.buffer);
         this.gl.vertexAttribPointer(this.programs.updateParticles.buffers.wholeClipSpaceTriangleBuffer.attribLocation, 2, this.gl.FLOAT, false, 0, 0);
@@ -227,7 +236,7 @@ class ParticlesExperiment {
         this.drawParticlesToSceneTexture();
         this.drawScreenTextureToCanvas();
 
-        // Switch scene textures textures.
+        // Switch the scene textures.
         var tempbg = this.textures.sceneTexture1;
         this.textures.sceneTexture1 = this.textures.sceneTexture2;
         this.textures.sceneTexture2 = tempbg;
@@ -239,12 +248,15 @@ class ParticlesExperiment {
         this.gl.useProgram(this.programs.fadeSceneTexture.program);
         this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.frameBuffers.bgframebuffer);
 
-        // read from bg texture 1
+        // Read from bg texture 1.
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures.sceneTexture1); 
-        // write to bg texture 2
+
+        // Write to bg texture 2.
         this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this.textures.sceneTexture2, 0);  
-        //Have to set viewport, it isn't done automatically.
+
+        // Have to set viewport, it isn't done automatically.
         this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height); 
+
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.programs.fadeSceneTexture.buffers.wholeClipSpaceTriangleBuffer.buffer);
         this.gl.vertexAttribPointer(this.programs.fadeSceneTexture.buffers.wholeClipSpaceTriangleBuffer.attribLocation, 2, this.gl.FLOAT, false, 0, 0);
         this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
@@ -257,8 +269,9 @@ class ParticlesExperiment {
         
         this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.frameBuffers.bgframebuffer);
 
-        //Have to set viewport, it isn't done automatically.
+        // Have to set viewport, it isn't done automatically.
         this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
+
         // This is the texture that will be read from. It contains the particle position locations.
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures.pixelLocationTexture1); 
 
@@ -274,10 +287,11 @@ class ParticlesExperiment {
 
     drawScreenTextureToCanvas()
     {
-        // Draw everything to the screen. Although the background shader iss almost identical to the fade shader
-        // We have to use a different one, because we want the latest particle position to have no fade.
+        // Draw everything to the screen. Although the background shader is almost identical to the fade shader
+        // we have to use a different one, because we want the latest particle position to have no fade.
         // If we use the fade shader here, it will work, but it'll just look worse.
         this.gl.useProgram(this.programs.drawSceneTexture.program);
+
         // Binding the frame buffer to null means to bind to the default context, which in webgl is the canvas.
         // In other words, this is telling the shader to draw to the canvas
         this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);

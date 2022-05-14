@@ -6,6 +6,8 @@ body {
     font-weight: bold;
 }
 
+h4 {padding: 0; margin: 0;}
+
 #particlesApp {
     display: flex;
     flex-direction: row;
@@ -44,17 +46,19 @@ body {
   position: relative;
 }
 
+
 .controlLabel {
     color: #ddc9b4;
     font-style:normal;
     font-weight: bold;
-    margin-bottom: 1%;
+    padding: 5% 0% 1% 0%;
 }
 
 .controlAreaLabel {
     color: #ddc9b4;
     font-style:normal;
     font-weight: bold;
+    
 }
 
 .subcontrolContainer {
@@ -64,6 +68,23 @@ body {
 #particlesDisplayContainer
 {
     border: 6px solid #180b04; 
+}
+
+#colourConfigContainer {
+    flex:1;
+    display: flex;
+    flex-direction:row;
+    justify-content: center;
+    align-content: center;
+    flex-basis: auto;
+    padding-top: 0 !important;
+}
+
+#colourConfigContainer > .subcontrolContainer {
+    width: 50%;
+    margin:0 auto;
+    text-align: center;
+    padding-top: 3% !important;
 }
 
 #formula {
@@ -136,9 +157,9 @@ body {
     height: 10px;
     background: #ddc9b4;
     outline: none;
-  }
-  
-  .slider::-webkit-slider-thumb {
+}
+
+.slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
     width: 15px;
@@ -146,12 +167,23 @@ body {
     background: #422800;
     cursor: pointer;
     border: 2px solid #ddc9b4;
-  }
-  
-  .slider::-moz-range-thumb {
+}
+
+.slider::-moz-range-thumb {
     width: 15px;
     height: 15px;
     background: #422800;
     cursor: pointer;
     border: 2px solid #ddc9b4;
-  }
+}
+
+.colourpicker {
+    width: 70%;
+    margin:5px auto;
+}
+
+input::-moz-color-swatch,
+input::-webkit-color-swatch {
+    border: none !important;
+    outline: none;
+}

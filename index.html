@@ -10,7 +10,7 @@
             <div class="controlElementContainer" id="formulaContainer">
                 <textarea id="formula" rows="4" cols="50"></textarea>
             </div>
-            <h3 class="controlAreaLabel">Particles Config</h3>
+            <h3 class="controlAreaLabel">Configuration</h3>
             <div class="controlElementContainer" id="particleConfigContainer">
                 <div class="subcontrolContainer">
                     <h4 class="controlLabel">Count: <span id="particleCountLabel"></span></h4> 
@@ -22,24 +22,23 @@
                 </div>
                 <div class="subcontrolContainer">
                     <h4 class="controlLabel">Trail length <span id="particleTrailLengthLabel"></span></h4> 
-                    <input type="range" min="0" max="100" value="14" class="slider" oninput="onParticleTrialLengthInput()" id="particleTrailLengthRange">
+                    <input type="range" min="0" max="100" value="80" class="slider" oninput="onParticleTrialLengthInput()" id="particleTrailLengthRange">
                 </div>
                 <div class="subcontrolContainer">
                     <h4 class="controlLabel">Respawn threshold <span id="particleRespawnRateLabel"></span></h4> 
                     <input type="range" min="0" max="10000" value="9940" class="slider" oninput="onParticleRespawnRateLengthInput()" id="particleRespawnRateRange">
                 </div>
             </div>
-            <!-- <h3 class="controlAreaLabel">Colour Config</h3>
             <div class="controlElementContainer" id="colourConfigContainer">
                 <div class="subcontrolContainer">
-                    <h4 class="controlLabel">Particle colour</h4>
-                    <input type="range" min="1" max="100" value="50" class="slider" id="particleColourRange">
+                    <h4 class="controlLabel">Particle</h4>
+                    <input type="color" class="colourpicker" id="particleColour" value="#ffa366">
                 </div>
                 <div class="subcontrolContainer">
-                    <h4 class="controlLabel">Background colour</h4>
-                    <input type="range" min="1" max="100" value="50" class="slider" id="particleBackgroundColourRange">
+                    <h4 class="controlLabel">Background</h4>
+                    <input type="color" class="colourpicker" id="backgroundColour" value="#1a0a00">
                 </div>                
-            </div> -->
+            </div>
             <div id="buttonsContainer">
                 <button id="btnUpdate" class="btn buttonWood" onclick="update()">Update</button>
                 <button id="btnReset" class="btn buttonWood" onclick="reset()">Reset</button>
@@ -62,6 +61,8 @@
     var sizeEl =  document.getElementById("particleSizeRange");
     var trailLengthEl = document.getElementById("particleTrailLengthRange");
     var respawnRateEl = document.getElementById("particleRespawnRateRange");
+    var particleColourEl = document.getElementById("particleColour");
+    var backgroundColourEl = document.getElementById("backgroundColour");
 
     var defaultText = ("//currentPosition is passed in.\n//Coordinates range from 0 to 1000.\n\nvec2 newPosition = vec2(0);\n\n" +
     "newPosition.x = currentPosition.x + sin(currentPosition.y / 100.0);\n\n" + 
@@ -79,10 +80,7 @@
     function resize()
     {
         // Keep it square because it looks cooler.
-        var dimensionW = window.innerWidth / 100 * 70;
-        var dimensionH = window.innerHeight / 100 * 90;
         var dimension = window.innerHeight / 100 * 90;
-
         if (window.innerHeight < window.innerWidth) dimension = window.innerHeight;
         var dimensionSizePixels = dimension / 100 *95;
 
@@ -96,8 +94,10 @@
         var particleSize = sizeEl.value;
         var trailLength = trailLengthEl.value;
         var respawnRate = respawnRateEl.value;
+        var particleColour = hexToRGB(particleColourEl.value);
+        var backgroundColour = hexToRGB(backgroundColourEl.value);
 
-        particles = new ParticlesExperiment(document.getElementById("c").getContext("webgl2"), particleCount, particleSize, trailLength, respawnRate)
+        particles = new ParticlesExperiment(document.getElementById("c").getContext("webgl2"), particleCount, particleSize, trailLength, respawnRate, particleColour, backgroundColour)
 
         var updateParticlesProgramSrc = GetUpdateParticlesProgramSrc(src);
         
@@ -109,8 +109,10 @@
         formulaEl.value = defaultText;
         countEl.value = 100;
         sizeEl.value = 1;
-        trailLengthEl.value = 14;
+        trailLengthEl.value = 80;
         respawnRateEl.value = 9940;
+        particleColourEl.value = "#ffa366";
+        backgroundColourEl.value = "#1a0a00";
 
         onParticleCountInput();
         onParticleSizeInput();
@@ -118,6 +120,14 @@
         onParticleRespawnRateLengthInput();
 
         update();
+    }
+
+    function hexToRGB(value)
+    {
+        // Thanks to: https://stackoverflow.com/questions/36697749/html-get-color-in-rgb
+        var value = value.match(/[A-Za-z0-9]{2}/g);
+        value = value.map(function(v) { return parseInt(v, 16) });
+        return value;
     }
 
     function onParticleCountInput()
@@ -162,6 +172,7 @@
 </script>
 
 <!--
+    todo: delta time for consistent movement regardless of framerate
     feature ideas: 
         particles paint a picture
         add collisions using a collision texture 
