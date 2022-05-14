@@ -196,6 +196,7 @@ class ParticlesExperiment {
         // Now we must update the particle positons, so use the update shader.
         this.gl.useProgram(this.programs.updateParticles.program);
     
+        // This seed is used to calculate the number to determine whether or not to reset particle position in the shader.
         var seed = Math.random() * 256;
 
         this.gl.uniform1f(this.programs.updateParticles.locations.uniforms.randomSeed, seed);
