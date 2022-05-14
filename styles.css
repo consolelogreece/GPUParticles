@@ -37,21 +37,19 @@ h4 {padding: 0; margin: 0;}
 {
   max-width: 30%;
   width: 400px;
-  min-height: 100%;
   background-color: #180b04;
   border: 6px solid #180b04; 
   border-right: 12px solid #180b04;
-
   box-sizing: border-box;
   position: relative;
+  max-height: 100%;
 }
-
 
 .controlLabel {
     color: #ddc9b4;
     font-style:normal;
     font-weight: bold;
-    padding: 5% 0% 1% 0%;
+    padding: 2% 0% 1% 0%;
 }
 
 .controlAreaLabel {
@@ -206,3 +204,37 @@ button:focus {
 .infoLabel {
     font-size: 11px;
 }
+
+#githubSVG {
+    max-height: 100%;
+    max-width: 100%;
+    fill: #ddc9b4;
+    text-align: center;
+    float:right;
+    text-align: right;
+    z-index: 1;
+    width: 9%;
+    margin: 3% 0% 0% 0%;
+    
+}
+
+#githubSVG:hover {
+    fill: #fbeee0;
+}
+
+#headerContainer {
+    flex:1;
+    display: flex;
+    flex-direction:row;
+    justify-content: center;
+    align-content: center;
+    flex-basis: auto;
+    width: 100%;
+    height: 5%;
+    text-align: left;
+}
+
+#headerContainer > .controlAreaLabel{
+    float:left; 
+}
+
