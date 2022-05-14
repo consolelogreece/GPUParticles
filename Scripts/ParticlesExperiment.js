@@ -1,13 +1,13 @@
 class ParticlesExperiment {
-    constructor(gl, nParticleDimensions, particleSize, trailLength, respawnThreshold, particleColour, backgroundColour)
+    constructor(gl, nParticleDimensions, particleSize, trailLength, respawnThreshold, particleColour, backgroundColour, img)
     {
         this.gl = gl;
         this.utils = utils;
 
         this.setState(nParticleDimensions, particleSize, trailLength, respawnThreshold, particleColour, backgroundColour);
-        this.setupShaderPrograms();
         this.setupTextures();
         this.setupFrameBuffers();
+        this.setupShaderPrograms();
         
         this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
     }
@@ -80,19 +80,27 @@ class ParticlesExperiment {
                 uniforms: {
                     nParticleDimensions: this.gl.getUniformLocation(program, "nParticleDimensions"),
                     particleSize: this.gl.getUniformLocation(program, "particleSize"),
-                    particleColour: this.gl.getUniformLocation(program, "particleColour")
+                    particleColourTexture: this.gl.getUniformLocation(program, "particleColourTexture"),
+                    particleLocationsTexture: this.gl.getUniformLocation(program, "particleLocationsTexture")
                 } 
             },
             buffers: {
                 positionIndex: this.utils.createBindArrayBuffer(this.gl, program, "a_positionIndex", this.data.positions, this.gl.STATIC_DRAW)
+            },
+            // Learned about texture units here: https://www.youtube.com/watch?v=0nZn5YPNf5k at around 17:20
+            textureUnits: {
+                particleLocationsTexture: 0,
+                particleColourTexture: 1
             }
         }
 
-        console.log(this.config.colours.particleColour)
         this.gl.useProgram(program);
         this.gl.uniform1f(this.programs.drawParticles.locations.uniforms.nParticleDimensions, this.config.particles.nParticleDimensions);
         this.gl.uniform1f(this.programs.drawParticles.locations.uniforms.particleSize, this.config.particles.particleSize);
-        this.gl.uniform3fv(this.programs.drawParticles.locations.uniforms.particleColour, this.config.colours.particleColour);
+
+        this.gl.uniform1i(this.programs.drawParticles.locations.uniforms.particleColourTexture, this.programs.drawParticles.textureUnits.particleColourTexture); 
+
+        this.gl.uniform1i(this.programs.drawParticles.locations.uniforms.particleLocationsTexture, this.programs.drawParticles.textureUnits.particleLocationsTexture);
     }
 
     setupDrawSceneTextureProgram(vertSrc, fragSrc) 
@@ -152,6 +160,18 @@ class ParticlesExperiment {
 
     setupTextures()
     {
+        var particleColourTexturePixels = [];
+
+        for(var i = 0; i < this.gl.canvas.width * this.gl.canvas.height; i++)
+        {
+            particleColourTexturePixels.push(...[...this.config.colours.particleColour, 255])
+        }
+
+        var pixelRGBArray = [];
+        function random255(){return Math.floor(Math.random() * 256);}
+        for(var  i = 0; i < this.gl.canvas.width * this.gl.canvas.height /*Multiply by 4 as 1 for each RGBA*/; i++) pixelRGBArray.push(random255(),random255(),255, 255);
+        var particleColourTexturePixels = pixelRGBArray;
+        
         this.textures = {
             // Create the textures that will store particle position information.
             pixelLocationTexture1: this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.config.particles.nParticleDimensions, 
@@ -160,8 +180,10 @@ class ParticlesExperiment {
                 this.config.particles.nParticleDimensions, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.data.pixels),
                 
             // Create the textures that will be useful to blend the trails later
-            sceneTexture1: this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.canvas.width, this.gl.canvas.width, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null),
-            sceneTexture2: this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.canvas.width, this.gl.canvas.width, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null)
+            sceneTexture1: this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.canvas.width, this.gl.canvas.height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null),
+            sceneTexture2: this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.canvas.width, this.gl.canvas.height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null),
+
+            particleColourTexture: this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.canvas.width, this.gl.canvas.height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, new Uint8Array(particleColourTexturePixels)),
         }
     }
 
@@ -207,6 +229,10 @@ class ParticlesExperiment {
         // Set the viewport. There numbers are the dimensions of the texture containing the particle location info.
         this.gl.viewport(0, 0, this.config.particles.nParticleDimensions, this.config.particles.nParticleDimensions);
 
+        // Explicity binding to the default texture unit here just to be safe. If I don't do this, and the previous call I make is the non default texture unit, like 1, 
+        // It will still think the active texture unit is 1 when it tries to bind the texture, which will ofcourse fail...
+        this.gl.activeTexture(this.gl.TEXTURE0);
+      
         // The shader should read from texture 1 to get the particle locations that were drawn previously.
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures.pixelLocationTexture1);
 
@@ -249,6 +275,10 @@ class ParticlesExperiment {
         this.gl.useProgram(this.programs.fadeSceneTexture.program);
         this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.frameBuffers.bgframebuffer);
 
+        // Explicity binding to the default texture unit here just to be safe. If I don't do this, and the previous call I make is the non default texture unit, like 1, 
+        // It will still think the active texture unit is 1 when it tries to bind the texture, which will ofcourse fail...
+        this.gl.activeTexture(this.gl.TEXTURE0);
+        
         // Read from bg texture 1.
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures.sceneTexture1); 
 
@@ -273,7 +303,12 @@ class ParticlesExperiment {
         // Have to set viewport, it isn't done automatically.
         this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
 
-        // This is the texture that will be read from. It contains the particle position locations.
+        // This is the texture that holds the colour value, when drawn to the scene, of the pixel based on where it's location.
+        this.gl.activeTexture(this.gl.TEXTURE0 + this.programs.drawParticles.textureUnits.particleColourTexture);
+        this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures.particleColourTexture);
+
+        // This is the texture that contains particle position locations.
+        this.gl.activeTexture(this.gl.TEXTURE0 + this.programs.drawParticles.textureUnits.particleLocationsTexture);
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures.pixelLocationTexture1); 
 
         this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this.textures.sceneTexture2, 0); 
@@ -296,6 +331,10 @@ class ParticlesExperiment {
         // Binding the frame buffer to null means to bind to the default context, which in webgl is the canvas.
         // In other words, this is telling the shader to draw to the canvas
         this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+
+        // Explicity binding to the default texture unit here just to be safe. If I don't do this, and the previous call I make is the non default texture unit, like 1, 
+        // It will still think the active texture unit is 1 when it tries to bind the texture, which will ofcourse fail...
+        this.gl.activeTexture(this.gl.TEXTURE0);
 
         // The particle positions and stuff are all now on this texture so we just have to draw it!
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures.sceneTexture2);

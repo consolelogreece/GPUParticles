@@ -64,7 +64,7 @@
     var particleColourEl = document.getElementById("particleColour");
     var backgroundColourEl = document.getElementById("backgroundColour");
 
-    var defaultText = ("//currentPosition is passed in.\n//Coordinates range from 0 to 1000.\n\nvec2 newPosition = vec2(0);\n\n" +
+    var defaultText = ("//currentPosition is passed in.\n//Coordinates range from 0 to 1000.\n//All numbers must be floats (decimals)\n\nvec2 newPosition = vec2(0);\n\n" +
     "newPosition.x = currentPosition.x + sin(currentPosition.y / 100.0);\n\n" + 
     "newPosition.y = currentPosition.y + sin(currentPosition.x / 100.0);\n\n" +
     "return newPosition;");
@@ -87,7 +87,7 @@
         particles.resize(dimensionSizePixels, dimensionSizePixels)
     }
 
-    function update()
+    function update(img)
     {
         var src = formulaEl.value;
         var particleCount = countEl.value;
@@ -97,14 +97,14 @@
         var particleColour = hexToRGB(particleColourEl.value);
         var backgroundColour = hexToRGB(backgroundColourEl.value);
 
-        particles = new ParticlesExperiment(document.getElementById("c").getContext("webgl2"), particleCount, particleSize, trailLength, respawnRate, particleColour, backgroundColour)
+        particles = new ParticlesExperiment(document.getElementById("c").getContext("webgl2"), particleCount, particleSize, trailLength, respawnRate, particleColour, backgroundColour, img)
 
         var updateParticlesProgramSrc = GetUpdateParticlesProgramSrc(src);
         
         particles.setupUpdateParticlesProgram(updateParticlesProgramSrc.vert, updateParticlesProgramSrc.frag);      
     }
 
-    function reset()
+    function reset(img)
     {
         formulaEl.value = defaultText;
         countEl.value = 100;
@@ -119,7 +119,7 @@
         onParticleTrialLengthInput();
         onParticleRespawnRateLengthInput();
 
-        update();
+        update(img);
     }
 
     function hexToRGB(value)
@@ -158,22 +158,35 @@
         lbl.innerHTML = respawnRateEl.value / 10000;
     }
 
+    function loadimage()
+    {
+        var img = new Image();
+        img.src = "https://i.imgur.com/zoVhJ.jpg";
+        img.onload = () => {
+            reset(img);
+            resize();
+            draw();
+        }
+        
+    }
+
     var particles;
 
     window.addEventListener('resize', resize); 
+
+    loadimage();
 
     onParticleCountInput();
     onParticleSizeInput();
     onParticleTrialLengthInput();
     onParticleRespawnRateLengthInput();
-    reset();
-    resize();
-    draw();
+    
 </script>
 
 <!--
     todo: delta time for consistent movement regardless of framerate
     feature ideas: 
-        particles paint a picture
+        particles paint a picture -> this can be implemented using a texture, and in order to keep the current background system working, we just create a texture with pixels all of that colour.
+            actually no, i think instead keep background regardless, the aprticles should reference the colour of the pic and then fade into the background colour.
         add collisions using a collision texture 
 -->
