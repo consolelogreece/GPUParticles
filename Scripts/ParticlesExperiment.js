@@ -4,7 +4,7 @@ class ParticlesExperiment {
         this.gl = gl;
         this.utils = utils;
 
-        this.setState(nParticleDimensions, particleSize, trailLength, respawnThreshold, particleColour, backgroundColour);
+        this.setState(nParticleDimensions, particleSize, trailLength, respawnThreshold, particleColour, backgroundColour, img);
         this.setupTextures();
         this.setupFrameBuffers();
         this.setupShaderPrograms();
@@ -12,7 +12,7 @@ class ParticlesExperiment {
         this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
     }
 
-    setState(nParticleDimensions, particleSize, trailLength, respawnThreshold, particleColour, backgroundColour)
+    setState(nParticleDimensions, particleSize, trailLength, respawnThreshold, particleColour, backgroundColour, img)
     {
         this.config = {
             particles: {
@@ -24,7 +24,8 @@ class ParticlesExperiment {
             },
             colours: {
                 particleColour: new Uint8Array(particleColour),
-                backgroundColour: new Uint8Array(backgroundColour)
+                backgroundColour: new Uint8Array(backgroundColour),
+                particleTextureImage: img
             }
         }
 
@@ -159,19 +160,7 @@ class ParticlesExperiment {
     }
 
     setupTextures()
-    {
-        var particleColourTexturePixels = [];
-
-        for(var i = 0; i < this.gl.canvas.width * this.gl.canvas.height; i++)
-        {
-            particleColourTexturePixels.push(...[...this.config.colours.particleColour, 255])
-        }
-
-        var pixelRGBArray = [];
-        function random255(){return Math.floor(Math.random() * 256);}
-        for(var  i = 0; i < this.gl.canvas.width * this.gl.canvas.height /*Multiply by 4 as 1 for each RGBA*/; i++) pixelRGBArray.push(random255(),random255(),255, 255);
-        var particleColourTexturePixels = pixelRGBArray;
-        
+    {        
         this.textures = {
             // Create the textures that will store particle position information.
             pixelLocationTexture1: this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.config.particles.nParticleDimensions, 
@@ -181,10 +170,25 @@ class ParticlesExperiment {
                 
             // Create the textures that will be useful to blend the trails later
             sceneTexture1: this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.canvas.width, this.gl.canvas.height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null),
-            sceneTexture2: this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.canvas.width, this.gl.canvas.height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null),
-
-            particleColourTexture: this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.canvas.width, this.gl.canvas.height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, new Uint8Array(particleColourTexturePixels)),
+            sceneTexture2: this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.canvas.width, this.gl.canvas.height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null)
         }
+
+        if (this.config.colours.particleTextureImage == null)
+        {
+            var particleColourTexturePixels = [];
+
+            for(var i = 0; i < this.gl.canvas.width * this.gl.canvas.height; i++)
+            {
+                particleColourTexturePixels.push(...[...this.config.colours.particleColour, 255])
+            }
+
+            this.textures.particleColourTexture = this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.canvas.width, this.gl.canvas.height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, new Uint8Array(particleColourTexturePixels));
+        }
+        else
+        {
+            this.textures.particleColourTexture = this.utils.createTextureFromImage(this.gl, this.config.colours.particleTextureImage);
+        }
+
     }
 
     setupFrameBuffers()

@@ -187,3 +187,22 @@ input::-webkit-color-swatch {
     border: none !important;
     outline: none;
 }
+
+#imageUrl{
+    background-color: #ddc9b4;
+    color: #422800;
+    width: 100%;
+    border:none;
+    padding:3px;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+button:focus {
+    outline: none;
+}
+
+.infoLabel {
+    font-size: 11px;
+}

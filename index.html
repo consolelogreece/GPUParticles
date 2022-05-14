@@ -37,7 +37,13 @@
                 <div class="subcontrolContainer">
                     <h4 class="controlLabel">Background</h4>
                     <input type="color" class="colourpicker" id="backgroundColour" value="#1a0a00">
-                </div>                
+                </div>             
+            </div>
+            <div class="controlElementContainer" id="imgConfigContainer">
+                <div class="subcontrolContainer">
+                    <h4 class="controlLabel">Image URL  <span class="infoLabel">(The particles will paint this image)</span></h4> 
+                    <input id="imageUrl" placeholder="www.coolexamplesite.com/example.png">
+                </div>               
             </div>
             <div id="buttonsContainer">
                 <button id="btnUpdate" class="btn buttonWood" onclick="update()">Update</button>
@@ -63,22 +69,27 @@
     var respawnRateEl = document.getElementById("particleRespawnRateRange");
     var particleColourEl = document.getElementById("particleColour");
     var backgroundColourEl = document.getElementById("backgroundColour");
+    var imageUrlEl =  document.getElementById("imageUrl");
 
     var defaultText = ("//currentPosition is passed in.\n//Coordinates range from 0 to 1000.\n//All numbers must be floats (decimals)\n\nvec2 newPosition = vec2(0);\n\n" +
     "newPosition.x = currentPosition.x + sin(currentPosition.y / 100.0);\n\n" + 
     "newPosition.y = currentPosition.y + sin(currentPosition.x / 100.0);\n\n" +
     "return newPosition;");
 
+    var requestAnimationFrameReference;
+
     function draw()
     {
         particles.draw();
         
         // This tells the browser to keep rerunning this function whenever it deems fit (typically the refresh rate of the monitor).
-        requestAnimationFrame(draw);
+        requestAnimationFrameReference = requestAnimationFrame(draw);
     }
 
     function resize()
     {
+        if (!particles) return;
+
         // Keep it square because it looks cooler.
         var dimension = window.innerHeight / 100 * 90;
         if (window.innerHeight < window.innerWidth) dimension = window.innerHeight;
@@ -87,8 +98,10 @@
         particles.resize(dimensionSizePixels, dimensionSizePixels)
     }
 
-    function update(img)
+    async function update(img)
     {
+        cancelAnimationFrame(requestAnimationFrameReference);
+
         var src = formulaEl.value;
         var particleCount = countEl.value;
         var particleSize = sizeEl.value;
@@ -96,15 +109,20 @@
         var respawnRate = respawnRateEl.value;
         var particleColour = hexToRGB(particleColourEl.value);
         var backgroundColour = hexToRGB(backgroundColourEl.value);
+        var imageUrl = imageUrlEl.value;
+
+        var img = await loadImage(imageUrl);
 
         particles = new ParticlesExperiment(document.getElementById("c").getContext("webgl2"), particleCount, particleSize, trailLength, respawnRate, particleColour, backgroundColour, img)
 
         var updateParticlesProgramSrc = GetUpdateParticlesProgramSrc(src);
-        
-        particles.setupUpdateParticlesProgram(updateParticlesProgramSrc.vert, updateParticlesProgramSrc.frag);      
+        particles.setupUpdateParticlesProgram(updateParticlesProgramSrc.vert, updateParticlesProgramSrc.frag); 
+
+        resize();
+        draw();
     }
 
-    function reset(img)
+    function reset()
     {
         formulaEl.value = defaultText;
         countEl.value = 100;
@@ -113,13 +131,14 @@
         respawnRateEl.value = 9940;
         particleColourEl.value = "#ffa366";
         backgroundColourEl.value = "#1a0a00";
+        imageUrlEl.value = "";
 
         onParticleCountInput();
         onParticleSizeInput();
         onParticleTrialLengthInput();
         onParticleRespawnRateLengthInput();
 
-        update(img);
+        update();
     }
 
     function hexToRGB(value)
@@ -158,35 +177,23 @@
         lbl.innerHTML = respawnRateEl.value / 10000;
     }
 
-    function loadimage()
-    {
-        var img = new Image();
-        img.src = "https://i.imgur.com/zoVhJ.jpg";
-        img.onload = () => {
-            reset(img);
-            resize();
-            draw();
-        }
-        
-    }
+    const loadImage = (imageUrlEl) => new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => resolve(null)
+        img.src = imageUrlEl;
+    })
 
     var particles;
 
     window.addEventListener('resize', resize); 
 
-    loadimage();
-
-    onParticleCountInput();
-    onParticleSizeInput();
-    onParticleTrialLengthInput();
-    onParticleRespawnRateLengthInput();
-    
+    reset();
+    update();    
 </script>
 
 <!--
     todo: delta time for consistent movement regardless of framerate
     feature ideas: 
-        particles paint a picture -> this can be implemented using a texture, and in order to keep the current background system working, we just create a texture with pixels all of that colour.
-            actually no, i think instead keep background regardless, the aprticles should reference the colour of the pic and then fade into the background colour.
         add collisions using a collision texture 
 -->

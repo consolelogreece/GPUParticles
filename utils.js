@@ -33,6 +33,19 @@ function createTexture(webglContext, target, level, internalformat, width, heigh
     return texture;
 }
 
+function createTextureFromImage(webglContext, img)
+{
+    var texture = webglContext.createTexture();
+    webglContext.bindTexture(webglContext.TEXTURE_2D, texture);
+    webglContext.texImage2D(webglContext.TEXTURE_2D, 0, webglContext.RGBA, webglContext.RGBA, webglContext.UNSIGNED_BYTE, img);
+    webglContext.texParameteri(webglContext.TEXTURE_2D, webglContext.TEXTURE_WRAP_S, webglContext.CLAMP_TO_EDGE);
+    webglContext.texParameteri(webglContext.TEXTURE_2D, webglContext.TEXTURE_WRAP_T, webglContext.CLAMP_TO_EDGE);
+    webglContext.texParameteri(webglContext.TEXTURE_2D, webglContext.TEXTURE_MIN_FILTER, webglContext.NEAREST);
+    webglContext.texParameteri(webglContext.TEXTURE_2D, webglContext.TEXTURE_MAG_FILTER, webglContext.NEAREST);
+   
+    return texture;
+}
+
 function createBindArrayBuffer(webglContext, program, attribName, data, drawType)
 {
     var attrib = webglContext.getAttribLocation(program, attribName);
@@ -56,6 +69,7 @@ const utils = {
     createShader: createShader,
     createProgram: createProgram,
     createTexture: createTexture,
+    createTextureFromImage: createTextureFromImage,
     createBindArrayBuffer: createBindArrayBuffer,
     createProgramFromSrc: createProgramFromSrc
 }
