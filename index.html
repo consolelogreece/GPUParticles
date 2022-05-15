@@ -239,7 +239,7 @@
     var resizeCanvas;
     window.onresize = function(){
         clearTimeout(resizeCanvas);
-        resizeCanvas = setTimeout(update, 250);
+        resizeCanvas = setTimeout(update, 1000);
     };
 
     reset();    
