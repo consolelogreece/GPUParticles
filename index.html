@@ -46,8 +46,8 @@
                     <input type="range" min="0" max="100" value="15" class="slider" oninput="onParticleTrailFadeRateInput()" id="particleTrailFadeRateRange">
                 </div>
                 <div class="subcontrolContainer">
-                    <h4 class="controlLabel">Respawn chance: <span id="particleRespawnChanceLabel"></span>  <span class="infoLabel">(1 = No chance of respawning)</span></h4> 
-                    <input type="range" min="0" max="10000" value="9940" class="slider" oninput="onParticleRespawnChanceLengthInput()" id="particleRespawnChanceRange">
+                    <h4 class="controlLabel">Respawn chance: <span id="particleRespawnChanceLabel"></span>  <span class="infoLabel">(0 = No chance of respawning)</span></h4> 
+                    <input type="range" min="0" max="10000" value="60" class="slider" oninput="onParticleRespawnChanceLengthInput()" id="particleRespawnChanceRange">
                 </div>
             </div>
             <div class="controlElementContainer" id="colourConfigContainer">
@@ -134,7 +134,8 @@
         var img = await loadImage(imageUrl);
 
         particles = new ParticlesExperiment(document.getElementById("c").getContext("webgl2"), particleCount, particleSize, trailFadeRate / 100, 
-            respawnChance / 10000, particleColour, backgroundColour, img, window.innerWidth , window.innerHeight);
+            1 - (respawnChance / 10000 /*Has to invert from 1 as in the shader 1 = guaranteed respawn which is counter-intuitive to the user*/), particleColour, backgroundColour, 
+            img, window.innerWidth , window.innerHeight);
 
         var updateParticlesProgramSrc = GetUpdateParticlesProgramSrc(src);
 
@@ -150,7 +151,7 @@
         countEl.value = 100;
         sizeEl.value = 1;
         trailFadeRateEl.value = 15;
-        respawnChanceEl.value = 9940;
+        respawnChanceEl.value = 60;
         particleColourEl.value = "#ffa366";
         backgroundColourEl.value = "#1a0a00";
         imageUrlEl.value = "";
@@ -198,7 +199,7 @@
     {
         var lbl = document.getElementById("particleRespawnChanceLabel");
 
-        lbl.innerHTML = respawnChanceEl.value / 10000;
+        lbl.innerHTML = respawnChanceEl.value / 100;
     }
 
     function onParticleColourChange()
