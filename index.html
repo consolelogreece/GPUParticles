@@ -38,16 +38,16 @@
                     <input type="range" min="1" max="1024" value="150" class="slider" oninput="onParticleCountInput()" id="particleCountRange">
                 </div>
                 <div class="subcontrolContainer">
-                    <h4 class="controlLabel">Size <span id="particleSizeLabel"></span></h4> 
+                    <h4 class="controlLabel">Size: <span id="particleSizeLabel"></span></h4> 
                     <input type="range" min="1" max="20" value="1" class="slider" oninput="onParticleSizeInput()" id="particleSizeRange">
                 </div>
                 <div class="subcontrolContainer">
-                    <h4 class="controlLabel">Trail length <span id="particleTrailLengthLabel"></span></h4> 
-                    <input type="range" min="0" max="100" value="80" class="slider" oninput="onParticleTrialLengthInput()" id="particleTrailLengthRange">
+                    <h4 class="controlLabel">Trail fade rate: <span id="particleTrailFadeRateLabel"></span></h4> 
+                    <input type="range" min="0" max="100" value="80" class="slider" oninput="onParticleTrailFadeRateInput()" id="particleTrailFadeRateRange">
                 </div>
                 <div class="subcontrolContainer">
-                    <h4 class="controlLabel">Respawn chance <span id="particleRespawnRateLabel"></span>  <span class="infoLabel">(1 = No chance of respawning)</span></h4> 
-                    <input type="range" min="0" max="10000" value="9940" class="slider" oninput="onParticleRespawnRateLengthInput()" id="particleRespawnRateRange">
+                    <h4 class="controlLabel">Respawn chance: <span id="particleRespawnChanceLabel"></span>  <span class="infoLabel">(1 = No chance of respawning)</span></h4> 
+                    <input type="range" min="0" max="10000" value="9940" class="slider" oninput="onParticleRespawnChanceLengthInput()" id="particleRespawnChanceRange">
                 </div>
             </div>
             <div class="controlElementContainer" id="colourConfigContainer">
@@ -97,8 +97,8 @@
     var formulaEl = document.getElementById("formula");
     var countEl = document.getElementById("particleCountRange");
     var sizeEl =  document.getElementById("particleSizeRange");
-    var trailLengthEl = document.getElementById("particleTrailLengthRange");
-    var respawnRateEl = document.getElementById("particleRespawnRateRange");
+    var trailFadeRateEl = document.getElementById("particleTrailFadeRateRange");
+    var respawnChanceEl = document.getElementById("particleRespawnChanceRange");
     var particleColourEl = document.getElementById("particleColour");
     var backgroundColourEl = document.getElementById("backgroundColour");
     var imageUrlEl =  document.getElementById("imageUrl");
@@ -125,16 +125,16 @@
         var src = formulaEl.value;
         var particleCount = countEl.value;
         var particleSize = sizeEl.value;
-        var trailLength = trailLengthEl.value;
-        var respawnRate = respawnRateEl.value;
+        var trailFadeRate = trailFadeRateEl.value;
+        var respawnChance = respawnChanceEl.value;
         var particleColour = hexToRGB(particleColourEl.value);
         var backgroundColour = hexToRGB(backgroundColourEl.value);
         var imageUrl = imageUrlEl.value;
 
         var img = await loadImage(imageUrl);
 
-        particles = new ParticlesExperiment(document.getElementById("c").getContext("webgl2"), particleCount, particleSize, trailLength, 
-            respawnRate, particleColour, backgroundColour, img, window.innerWidth , window.innerHeight);
+        particles = new ParticlesExperiment(document.getElementById("c").getContext("webgl2"), particleCount, particleSize, trailFadeRate / 100, 
+            respawnChance / 10000, particleColour, backgroundColour, img, window.innerWidth , window.innerHeight);
 
         var updateParticlesProgramSrc = GetUpdateParticlesProgramSrc(src);
 
@@ -149,8 +149,8 @@
     {
         countEl.value = 100;
         sizeEl.value = 1;
-        trailLengthEl.value = 80;
-        respawnRateEl.value = 9940;
+        trailFadeRateEl.value = 15;
+        respawnChanceEl.value = 9940;
         particleColourEl.value = "#ffa366";
         backgroundColourEl.value = "#1a0a00";
         imageUrlEl.value = "";
@@ -158,8 +158,8 @@
 
         onParticleCountInput();
         onParticleSizeInput();
-        onParticleTrialLengthInput();
-        onParticleRespawnRateLengthInput();
+        onParticleTrailFadeRateInput();
+        onParticleRespawnChanceLengthInput();
         onPresetChanged();
 
         update();
@@ -187,18 +187,18 @@
         lbl.innerHTML = sizeEl.value;
     }
 
-    function onParticleTrialLengthInput()
+    function onParticleTrailFadeRateInput()
     {
-        var lbl = document.getElementById("particleTrailLengthLabel");
+        var lbl = document.getElementById("particleTrailFadeRateLabel");
 
-        lbl.innerHTML = trailLengthEl.value;
+        lbl.innerHTML = trailFadeRateEl.value;
     }
 
-    function onParticleRespawnRateLengthInput()
+    function onParticleRespawnChanceLengthInput()
     {
-        var lbl = document.getElementById("particleRespawnRateLabel");
+        var lbl = document.getElementById("particleRespawnChanceLabel");
 
-        lbl.innerHTML = respawnRateEl.value / 10000;
+        lbl.innerHTML = respawnChanceEl.value / 10000;
     }
 
     function onParticleColourChange()

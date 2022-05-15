@@ -1,5 +1,5 @@
 class ParticlesExperiment {
-    constructor(gl, nParticleDimensions, particleSize, trailLength, respawnThreshold, particleColour, backgroundColour, img, width, height)
+    constructor(gl, nParticleDimensions, particleSize, trailFadeRate, respawnChance, particleColour, backgroundColour, img, width, height)
     {
         this.gl = gl;
         this.utils = utils;
@@ -7,7 +7,7 @@ class ParticlesExperiment {
         this.gl.canvas.width = width;
         this.gl.canvas.height = height;
 
-        this.setState(nParticleDimensions, particleSize, trailLength, respawnThreshold, particleColour, backgroundColour, img, width, height);
+        this.setState(nParticleDimensions, particleSize, trailFadeRate, respawnChance, particleColour, backgroundColour, img, width, height);
         this.setupTextures();
         this.setupFrameBuffers();
         this.setupShaderPrograms();
@@ -15,15 +15,15 @@ class ParticlesExperiment {
         this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
     }
 
-    setState(nParticleDimensions, particleSize, trailLength, respawnThreshold, particleColour, backgroundColour, img, width, height)
+    setState(nParticleDimensions, particleSize, trailFadeRate, respawnThreshold, particleColour, backgroundColour, img, width, height)
     {
         this.config = {
             particles: {
                 nParticleDimensions: nParticleDimensions, // This will represent the size of the 2D particle texture. E.g., if nParticleDimensions = 100, there will be 100x100 particles.
                 nParticles: nParticleDimensions * nParticleDimensions,
                 particleSize: particleSize,
-                trailLength: (1 - (trailLength / 100)), // 1- is necessary as 0 is actually the long trail, so we must invert.
-                respawnThreshold: respawnThreshold / 10000
+                trailFadeRate: trailFadeRate,
+                respawnThreshold: respawnThreshold
             },
             colours: {
                 particleColour: new Uint8Array(particleColour),
@@ -130,7 +130,7 @@ class ParticlesExperiment {
             program: program,
             locations: {
                 uniforms: {
-                    trailLength:  this.gl.getUniformLocation(program, "trailLength"),
+                    trailFadeRate:  this.gl.getUniformLocation(program, "trailFadeRate"),
                     backgroundColour: this.gl.getUniformLocation(program, "backgroundColour")  
                 }
             },
@@ -140,7 +140,7 @@ class ParticlesExperiment {
         }
 
         this.gl.useProgram(program);
-        this.gl.uniform1f(this.programs.fadeSceneTexture.locations.uniforms.trailLength, this.config.particles.trailLength);
+        this.gl.uniform1f(this.programs.fadeSceneTexture.locations.uniforms.trailFadeRate, this.config.particles.trailFadeRate);
         this.gl.uniform3fv(this.programs.fadeSceneTexture.locations.uniforms.backgroundColour, this.config.colours.backgroundColour);
     }
 
