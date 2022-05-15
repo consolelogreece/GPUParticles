@@ -105,11 +105,17 @@
 
     var requestAnimationFrameReference;
 
+    var lastUpdate = performance.now();
+
     function draw()
     {
         if (!particles) return;
-        
-        particles.draw();
+
+        var now = performance.now();
+        var deltaTime = now - lastUpdate;
+        lastUpdate = now;
+
+        particles.draw(deltaTime);
         
         // This tells the browser to keep rerunning this function whenever it deems fit (typically the refresh rate of the monitor).
         requestAnimationFrameReference = requestAnimationFrame(draw);
