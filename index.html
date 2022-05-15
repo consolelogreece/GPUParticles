@@ -5,12 +5,19 @@
         <div id="particlesDisplayContainer">
             <canvas id="c"></canvas>
         </div>
-        <div id="controls">
+    </div>
+    <div id="menuToggle" onclick="toggleMenu()">
+        ☰
+    </div>
+    <div id="menu">
+        <div id="githubContainer">               
             <a href="https://github.com/consolelogreece/GPUParticles" target="_blank" title="GitHub">
                 <svg id="githubSVG" viewBox="0 0 16 16">
                     <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path>
                 </svg>
-            </a>      
+            </a>   
+        </div>
+        <div id="controls">
             <h3 class="controlAreaLabel">Formula</h3>      
             <div class="controlElementContainer" id="formulaContainer">
                 <textarea id="formula" rows="4" cols="50"></textarea>
@@ -49,7 +56,7 @@
                     <h4 class="controlLabel">Image URL  <span class="infoLabel">(The particles will paint this image)</span></h4> 
                     <input id="imageUrl" placeholder="Click for choices/enter your own url (imgur.com/example.png)" type="text" list="images" />
                     <datalist id="images">
-                        <option value="https://i.imgur.com/QALgrNJ.jpeg">Mountains & Rivers</option>
+                        <option value="https://i.imgur.com/QALgrNJ.jpeg">Mountain River</option>
                         <option value="https://i.imgur.com/nE2WMAF.jpeg">Indian Sunset</option>
                         <option value="https://i.imgur.com/cmAtU7Y.jpeg">Graffiti</option>
                         <option value="https://i.imgur.com/E6e6vjP.jpeg">Space Cat</option>
@@ -57,11 +64,13 @@
                         <option value="https://i.imgur.com/8tcxHWh.jpeg">Low Poly Mountains</option>
                     </datalist>
                 </div>               
-            </div>
-            <div id="buttonsContainer">
-                <button id="btnUpdate" class="btn buttonWood" onclick="update()">Update</button>
-                <button id="btnReset" class="btn buttonWood" onclick="reset()">Reset</button>
-            </div>
+            </div> 
+        </div>
+        
+        <div id="buttonsContainer">
+            <button id="btnUpdate" class="btn buttonWood" onclick="update()">Update</button>
+            <button id="btnReset" class="btn buttonWood" onclick="reset()">Reset</button>
+        </div>
         </div>
     </div>
 </body>
@@ -101,18 +110,6 @@
         requestAnimationFrameReference = requestAnimationFrame(draw);
     }
 
-    function resize()
-    {
-        if (!particles) return;
-
-        // Keep it square because it looks cooler.
-        var dimension = window.innerHeight / 100 * 90;
-        if (window.innerHeight < window.innerWidth) dimension = window.innerHeight;
-        var dimensionSizePixels = dimension / 100 *95;
-
-        particles.resize(dimensionSizePixels, dimensionSizePixels)
-    }
-
     var loading = false;
     async function update(img)
     {
@@ -131,7 +128,8 @@
 
         var img = await loadImage(imageUrl);
 
-        particles = new ParticlesExperiment(document.getElementById("c").getContext("webgl2"), particleCount, particleSize, trailLength, respawnRate, particleColour, backgroundColour, img);
+        particles = new ParticlesExperiment(document.getElementById("c").getContext("webgl2"), particleCount, particleSize, trailLength, 
+            respawnRate, particleColour, backgroundColour, img, window.innerWidth , window.innerHeight);
 
         var updateParticlesProgramSrc = GetUpdateParticlesProgramSrc(src);
 
@@ -139,7 +137,6 @@
 
         loading = false;
 
-        resize();
         draw();
     }
 
@@ -214,16 +211,31 @@
         return null;
     })
 
+    var menuElement= document.getElementById("menu");
+    function toggleMenu() 
+    {
+        if (menuElement.style.display === "none") {
+            menuElement.style.display = "block";
+        } else {
+            menuElement.style.display = "none";
+        }
+    }
+
     var particles;
 
-    window.addEventListener('resize', resize); 
+    var resizeCanvas;
+    window.onresize = function(){
+        clearTimeout(resizeCanvas);
+        resizeCanvas = setTimeout(update, 250);
+    };
 
-    reset();
-    update();    
+    reset();    
 </script>
 
 <!--
     todo: delta time for consistent movement regardless of framerate
+    todo: make the particle updates respect screen dimensions so that if the canvas is expanded to full screen, it doesnt have the effect of stretching everything out
+            In order to do this, i think i have to scale new positions based on screen dimension (i.e, reduce multiply x dimension by 1080/1920)
     feature ideas: 
         add collisions using a collision texture 
 -->
