@@ -175,7 +175,12 @@ class ParticlesExperiment {
     }
 
     setupTextures()
-    {        
+    {   
+        var particleColourTexturePixels = [];
+
+        for(var i = 0; i < this.config.sceneDimensions.width * this.config.sceneDimensions.height; i++)
+            particleColourTexturePixels.push(...[...this.config.colours.backgroundColour, 255])
+    
         this.textures = {
             // Create the textures that will store particle position information.
             pixelLocationTexture1: this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.config.particles.nParticleDimensions, 
@@ -184,27 +189,20 @@ class ParticlesExperiment {
                 this.config.particles.nParticleDimensions, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.data.pixels),
                 
             // Create the textures that will be useful to blend the trails later
-            sceneTexture1: this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.config.sceneDimensions.width, this.config.sceneDimensions.height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null),
-            sceneTexture2: this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.config.sceneDimensions.width, this.config.sceneDimensions.height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null)
+            sceneTexture1: this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.config.sceneDimensions.width, this.config.sceneDimensions.height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, new Uint8Array(particleColourTexturePixels)),
+            sceneTexture2: this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.config.sceneDimensions.width, this.config.sceneDimensions.height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, new Uint8Array(particleColourTexturePixels))
         }
         
-
         if (this.config.colours.particleTextureImage == null)
         {
             var particleColourTexturePixels = [];
 
             for(var i = 0; i < this.config.sceneDimensions.width * this.config.sceneDimensions.height; i++)
-            {
                 particleColourTexturePixels.push(...[...this.config.colours.particleColour, 255])
-            }
-
+            
             this.textures.particleColourTexture = this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.config.sceneDimensions.width, this.config.sceneDimensions.height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, new Uint8Array(particleColourTexturePixels));
         }
-        else
-        {
-            this.textures.particleColourTexture = this.utils.createTextureFromImage(this.gl, this.config.colours.particleTextureImage);
-        }
-
+        else this.textures.particleColourTexture = this.utils.createTextureFromImage(this.gl, this.config.colours.particleTextureImage);
     }
 
     setupFrameBuffers()
@@ -214,15 +212,6 @@ class ParticlesExperiment {
             bgframebuffer: this.gl.createFramebuffer()
         }
     }
-
-    // resize(width, height)
-    // {
-    //     this.textures.sceneTexture1 = this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, width, height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null);
-    //     this.textures.sceneTexture2 = this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, width, height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null);
-
-    //     this.gl.canvas.width = width;
-    //     this.gl.canvas.height = height;
-    // }
 
     draw()
     {  

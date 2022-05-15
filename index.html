@@ -1,5 +1,5 @@
 <!-- This is a learning exercise inspired and hugely helped by: https://blog.mapbox.com/how-i-built-a-wind-map-with-webgl-b63022b5537f -->
-
+<!DOCTYPE html>
 <body>
     <div id="particlesApp" class="centered">
         <div id="particlesDisplayContainer">
@@ -18,7 +18,7 @@
             </a>   
         </div>
         <div id="controls">
-            <h3 class="controlAreaLabel">Formula</h3>      
+            <h3 class="controlAreaLabel">Formula   <span class="infoLabel">(This will decide each particles new position and is run by each particle every frame)</span></h3>      
             <div class="controlElementContainer" id="formulaContainer">
                 <textarea id="formula" rows="4" cols="50"></textarea>
                 <h4 class="controlLabel">Select a preset: </h4> 
@@ -46,7 +46,7 @@
                     <input type="range" min="0" max="100" value="80" class="slider" oninput="onParticleTrialLengthInput()" id="particleTrailLengthRange">
                 </div>
                 <div class="subcontrolContainer">
-                    <h4 class="controlLabel">Respawn threshold <span id="particleRespawnRateLabel"></span></h4> 
+                    <h4 class="controlLabel">Respawn chance <span id="particleRespawnRateLabel"></span>  <span class="infoLabel">(1 = No chance of respawning)</span></h4> 
                     <input type="range" min="0" max="10000" value="9940" class="slider" oninput="onParticleRespawnRateLengthInput()" id="particleRespawnRateRange">
                 </div>
             </div>
