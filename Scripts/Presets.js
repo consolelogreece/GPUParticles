@@ -8,6 +8,16 @@ newPosition.y = currentPosition.y + sin(currentPosition.x / 100.0);
 return newPosition;
 `);
 
+var Miniswirls = (
+`vec2 newPosition = vec2(0);
+
+newPosition.x = currentPosition.x + sin(currentPosition.y / 10.0);
+
+newPosition.y = currentPosition.y + sin(currentPosition.x / 10.0);
+
+return newPosition;
+`);
+
 var Milkyway = (
 `vec2 newPosition = vec2(0);
 
@@ -72,6 +82,7 @@ function build(code)
 
 const presets = {
     Swirls: build(Swirls),
+    Miniswirls: build(Miniswirls),
     Milkyway: build(Milkyway),
     Parallax : build(Parallax),
     Checkerboard: build(Checkerboard),

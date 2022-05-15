@@ -24,6 +24,7 @@
                 <h4 class="controlLabel">Select a preset: </h4> 
                 <select name="formulaPresets" id="formulaPresets" onchange="onPresetChanged()" class="inputBox" id="formulaPresets">
                   <option value="Swirls" selected>Swirls</option>
+                  <option value="Miniswirls" selected>Miniswirls</option>
                   <option value="Milkyway">Milkyway</option>
                   <option value="Parallax">Parallax </option>
                   <option value="Checkerboard">Checkerboard</option>
@@ -34,7 +35,7 @@
             <h3 class="controlAreaLabel">Configuration</h3>
             <div class="controlElementContainer" id="particleConfigContainer">
                 <div class="subcontrolContainer">
-                    <h4 class="controlLabel">Count: <span id="particleCountLabel"></span></h4> 
+                    <h4 class="controlLabel">Count: <span id="particleCountLabel"></span> <span class="infoLabel">(Lots of particles will affect performance)</span></h4> 
                     <input type="range" min="1" max="1024" value="150" class="slider" oninput="onParticleCountInput()" id="particleCountRange">
                 </div>
                 <div class="subcontrolContainer">
