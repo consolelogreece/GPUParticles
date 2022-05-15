@@ -1,10 +1,10 @@
 class ParticlesExperiment {
-    constructor(gl, nParticleDimensions, particleSize, trailLength, respawnThreshold, particleColour, backgroundColour, img)
+    constructor(gl, nParticleDimensions, particleSize, trailLength, respawnThreshold, particleColour, backgroundColour, img, width, height)
     {
         this.gl = gl;
         this.utils = utils;
 
-        this.setState(nParticleDimensions, particleSize, trailLength, respawnThreshold, particleColour, backgroundColour, img);
+        this.setState(nParticleDimensions, particleSize, trailLength, respawnThreshold, particleColour, backgroundColour, img, width, height);
         this.setupTextures();
         this.setupFrameBuffers();
         this.setupShaderPrograms();
@@ -12,7 +12,7 @@ class ParticlesExperiment {
         this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
     }
 
-    setState(nParticleDimensions, particleSize, trailLength, respawnThreshold, particleColour, backgroundColour, img)
+    setState(nParticleDimensions, particleSize, trailLength, respawnThreshold, particleColour, backgroundColour, img, width, height)
     {
         this.config = {
             particles: {
@@ -26,8 +26,15 @@ class ParticlesExperiment {
                 particleColour: new Uint8Array(particleColour),
                 backgroundColour: new Uint8Array(backgroundColour),
                 particleTextureImage: img
+            },
+            sceneDimensions: {
+                width: width,
+                height: height
             }
         }
+
+        this.gl.canvas.width = width;
+        this.gl.canvas.height = height;
 
         // We need an array with the same number of indexes as the pixel buffer. This is basically 
         // how we get the vertex shader to run X times for each pixel of the partcile position texture. 
@@ -147,7 +154,8 @@ class ParticlesExperiment {
             locations: {
                 uniforms: {
                     randomSeed: this.gl.getUniformLocation(program, "randomSeed"),
-                    respawnThreshold: this.gl.getUniformLocation(program, "respawnPositionThreshold")  
+                    respawnThreshold: this.gl.getUniformLocation(program, "respawnPositionThreshold"),
+                    displayDimensionRatios: this.gl.getUniformLocation(program, "displayDimensionRatios")  
                 }
             },
             buffers: {
@@ -157,6 +165,14 @@ class ParticlesExperiment {
 
         this.gl.useProgram(program);
         this.gl.uniform1f(this.programs.updateParticles.locations.uniforms.respawnThreshold, this.config.particles.respawnThreshold);
+        
+        var width = this.config.sceneDimensions.width;
+        var height = this.config.sceneDimensions.height;
+
+        var widthRatio = width > height ? height / width : 1;
+        var heightRatio = height > width ? width / height : 1;
+        
+        this.gl.uniform2f(this.programs.updateParticles.locations.uniforms.displayDimensionRatios, widthRatio, heightRatio);
     }
 
     setupTextures()
@@ -169,20 +185,21 @@ class ParticlesExperiment {
                 this.config.particles.nParticleDimensions, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.data.pixels),
                 
             // Create the textures that will be useful to blend the trails later
-            sceneTexture1: this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.canvas.width, this.gl.canvas.height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null),
-            sceneTexture2: this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.canvas.width, this.gl.canvas.height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null)
+            sceneTexture1: this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.config.sceneDimensions.width, this.config.sceneDimensions.height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null),
+            sceneTexture2: this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.config.sceneDimensions.width, this.config.sceneDimensions.height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null)
         }
+        
 
         if (this.config.colours.particleTextureImage == null)
         {
             var particleColourTexturePixels = [];
 
-            for(var i = 0; i < this.gl.canvas.width * this.gl.canvas.height; i++)
+            for(var i = 0; i < this.config.sceneDimensions.width * this.config.sceneDimensions.height; i++)
             {
                 particleColourTexturePixels.push(...[...this.config.colours.particleColour, 255])
             }
 
-            this.textures.particleColourTexture = this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.canvas.width, this.gl.canvas.height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, new Uint8Array(particleColourTexturePixels));
+            this.textures.particleColourTexture = this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.config.sceneDimensions.width, this.config.sceneDimensions.height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, new Uint8Array(particleColourTexturePixels));
         }
         else
         {
@@ -199,14 +216,14 @@ class ParticlesExperiment {
         }
     }
 
-    resize(width, height)
-    {
-        this.textures.sceneTexture1 = this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, width, height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null);
-        this.textures.sceneTexture2 = this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, width, height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null);
+    // resize(width, height)
+    // {
+    //     this.textures.sceneTexture1 = this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, width, height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null);
+    //     this.textures.sceneTexture2 = this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, width, height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null);
 
-        this.gl.canvas.width = width;
-        this.gl.canvas.height = height;
-    }
+    //     this.gl.canvas.width = width;
+    //     this.gl.canvas.height = height;
+    // }
 
     draw()
     {  
@@ -290,7 +307,7 @@ class ParticlesExperiment {
         this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this.textures.sceneTexture2, 0);  
 
         // Have to set viewport, it isn't done automatically.
-        this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height); 
+        this.gl.viewport(0, 0, this.config.sceneDimensions.width, this.config.sceneDimensions.height); 
 
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.programs.fadeSceneTexture.buffers.wholeClipSpaceTriangleBuffer.buffer);
         this.gl.vertexAttribPointer(this.programs.fadeSceneTexture.buffers.wholeClipSpaceTriangleBuffer.attribLocation, 2, this.gl.FLOAT, false, 0, 0);
@@ -305,7 +322,7 @@ class ParticlesExperiment {
         this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.frameBuffers.bgframebuffer);
 
         // Have to set viewport, it isn't done automatically.
-        this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
+        this.gl.viewport(0, 0, this.config.sceneDimensions.width, this.config.sceneDimensions.height);
 
         // This is the texture that holds the colour value, when drawn to the scene, of the pixel based on where it's location.
         this.gl.activeTexture(this.gl.TEXTURE0 + this.programs.drawParticles.textureUnits.particleColourTexture);

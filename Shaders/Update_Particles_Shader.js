@@ -34,6 +34,9 @@ function GetUpdateParticlesProgramSrc(userText)
         uniform sampler2D particles;
         uniform float randomSeed;
         uniform float respawnPositionThreshold; // This will be between 0 and 1, the lower the threshold, the more likely a particle is to have it's position reset.
+
+        // This will hold the ratios to multiply then divide the position by after the position has been updated so that the particles aren't warped by real screen dimensions.
+        uniform vec2 displayDimensionRatios;
         
         out vec4 fragColor;
         in vec2 v_texturePosition;
@@ -57,13 +60,17 @@ function GetUpdateParticlesProgramSrc(userText)
             // positions range from 0 to 1. to recode, we will have to remultiply by 255 wherever necessary.
             vec2 pos = vec2(colour.r / 255.0 + colour.b, colour.g / 255.0 + colour.a);
 
+            pos /= displayDimensionRatios;
+
             pos *= 1000.0;
 
             // Do whatever we want to update the position of the particle.
             pos = newPosition(pos);
 
             pos /= 1000.0;
-            
+
+            pos *=  displayDimensionRatios;
+
             //Reset if at uv boundary
             if (pos.x > 1.0) { 
                 pos.x = mod(pos.x, 1.0); 
