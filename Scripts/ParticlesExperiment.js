@@ -4,6 +4,9 @@ class ParticlesExperiment {
         this.gl = gl;
         this.utils = utils;
 
+        this.gl.canvas.width = width;
+        this.gl.canvas.height = height;
+
         this.setState(nParticleDimensions, particleSize, trailLength, respawnThreshold, particleColour, backgroundColour, img, width, height);
         this.setupTextures();
         this.setupFrameBuffers();
@@ -32,10 +35,7 @@ class ParticlesExperiment {
                 height: height
             }
         }
-
-        this.gl.canvas.width = width;
-        this.gl.canvas.height = height;
-
+        
         // We need an array with the same number of indexes as the pixel buffer. This is basically 
         // how we get the vertex shader to run X times for each pixel of the partcile position texture. 
         // We use each one of these positions as points in the draw arrays method, and calculate the position of the particle 
@@ -107,7 +107,6 @@ class ParticlesExperiment {
         this.gl.uniform1f(this.programs.drawParticles.locations.uniforms.particleSize, this.config.particles.particleSize);
 
         this.gl.uniform1i(this.programs.drawParticles.locations.uniforms.particleColourTexture, this.programs.drawParticles.textureUnits.particleColourTexture); 
-
         this.gl.uniform1i(this.programs.drawParticles.locations.uniforms.particleLocationsTexture, this.programs.drawParticles.textureUnits.particleLocationsTexture);
     }
 
