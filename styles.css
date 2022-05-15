@@ -124,7 +124,7 @@ h4 {padding: 0; margin: 0;}
     text-align: left;
     resize: none;
     width: 100%;
-    height: 100%;
+    height: 80%;
     background-color: #ddc9b4;
     color: #422800;
     font-size: 11px;
@@ -132,7 +132,11 @@ h4 {padding: 0; margin: 0;}
 }
 
 #formulaContainer {
-    height: 25%;
+    height: 30%;
+}
+
+#formulaPresetsLabel {
+    margin-top: 50px;
 }
 
 .controlElementContainer {
@@ -221,7 +225,8 @@ input::-webkit-color-swatch {
     outline: none;
 }
 
-#imageUrl{
+
+.inputBox {
     background-color: #ddc9b4;
     color: #422800;
     width: 100%;

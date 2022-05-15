@@ -21,6 +21,13 @@
             <h3 class="controlAreaLabel">Formula</h3>      
             <div class="controlElementContainer" id="formulaContainer">
                 <textarea id="formula" rows="4" cols="50"></textarea>
+
+                <h4 class="controlLabel">Select a preset: </h4> 
+                <select name="formulaPresets" id="formulaPresets" onchange="onPresetChanged()" class="inputBox" id="formulaPresets">
+                  <option value="Swirls">Swirls</option>
+                  <option value="Milkyway">Milkyway</option>
+                  <option value="Parallax">Parallax </option>
+                </select> 
             </div>
             <h3 class="controlAreaLabel">Configuration</h3>
             <div class="controlElementContainer" id="particleConfigContainer">
@@ -54,7 +61,7 @@
             <div class="controlElementContainer" id="imgConfigContainer">
                 <div class="subcontrolContainer">
                     <h4 class="controlLabel">Image URL  <span class="infoLabel">(The particles will paint this image)</span></h4> 
-                    <input id="imageUrl" placeholder="Click for choices/enter your own url (imgur.com/example.png)" type="text" list="images" />
+                    <input id="imageUrl" class="inputBox" placeholder="Click for choices/enter your own url (imgur.com/example.png)" type="text" list="images" />
                     <datalist id="images">
                         <option value="https://i.imgur.com/QALgrNJ.jpeg">Mountain River</option>
                         <option value="https://i.imgur.com/nE2WMAF.jpeg">Indian Sunset</option>
@@ -74,7 +81,8 @@
     </div>
 </body>
 
-<script src="./utils.js"></script>
+<script src="./Scripts/utils.js"></script>
+<script src="./Scripts/Presets.js"></script>
 <script src="./Shaders/Draw_Particles_Shader.js"></script>
 <script src="./Shaders/Fade_Screen_Texture_Shader.js"></script>
 <script src="./Shaders/Draw_To_Screen_Texture_Shader.js"></script>
@@ -197,6 +205,13 @@
     function onParticleColourChange()
     {
         imageUrlEl.value = "";
+    }
+
+    var el = document.getElementById("formulaPresets");
+    function onPresetChanged()
+    {
+        var val = el.value;
+        formulaEl.value = presets[val];
     }
 
     const loadImage = (imageUrlEl) => new Promise(resolve => 
