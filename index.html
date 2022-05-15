@@ -20,7 +20,7 @@
         <div id="controls">
             <h3 class="controlAreaLabel">Formula</h3>      
             <div class="controlElementContainer" id="formulaContainer">
-                <textarea id="formula" rows="4" cols="50"></textarea>
+                <textarea id="formula" rows="4" cols="50" oninput="onFormulaChange()"></textarea>
 
                 <h4 class="controlLabel">Select a preset: </h4> 
                 <select name="formulaPresets" id="formulaPresets" onchange="onPresetChanged()" class="inputBox" id="formulaPresets">
@@ -157,11 +157,13 @@
         particleColourEl.value = "#ffa366";
         backgroundColourEl.value = "#1a0a00";
         imageUrlEl.value = "";
+        presetEl.selectedIndex = 1;
 
         onParticleCountInput();
         onParticleSizeInput();
         onParticleTrialLengthInput();
         onParticleRespawnRateLengthInput();
+        onPresetChanged();
 
         update();
     }
@@ -207,10 +209,15 @@
         imageUrlEl.value = "";
     }
 
-    var el = document.getElementById("formulaPresets");
+    function onFormulaChange()
+    {
+        presetEl.selectedIndex = -1;
+    }
+
+    var presetEl = document.getElementById("formulaPresets");
     function onPresetChanged()
     {
-        var val = el.value;
+        var val = presetEl.value;
         formulaEl.value = presets[val];
     }
 
