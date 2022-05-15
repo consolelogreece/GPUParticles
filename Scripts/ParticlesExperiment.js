@@ -154,7 +154,7 @@ class ParticlesExperiment {
                 uniforms: {
                     randomSeed: this.gl.getUniformLocation(program, "randomSeed"),
                     respawnThreshold: this.gl.getUniformLocation(program, "respawnPositionThreshold"),
-                    displayDimensionRatios: this.gl.getUniformLocation(program, "displayDimensionRatios")  
+                    displayDimensionRatios: this.gl.getUniformLocation(program, "displayDimensionRatios")
                 }
             },
             buffers: {
