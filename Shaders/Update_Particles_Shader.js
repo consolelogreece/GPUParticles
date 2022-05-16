@@ -60,35 +60,22 @@ function GetUpdateParticlesProgramSrc(userText)
             // positions range from 0 to 1. to recode, we will have to remultiply by 255 wherever necessary.
             vec2 pos = vec2(colour.r / 255.0 + colour.b, colour.g / 255.0 + colour.a);
 
-            pos /= displayDimensionRatios;
-
-            pos *= 1000.0;
+            pos = (pos / displayDimensionRatios) * 1000.0;
 
             // Do whatever we want to update the position of the particle.
             pos = newPosition(pos);
 
-            pos /= 1000.0;
-
-            pos *=  displayDimensionRatios;
+            pos = (pos * displayDimensionRatios) / 1000.0;
 
             //Reset if at uv boundary
-            if (pos.x > 1.0) { 
-                pos.x = mod(pos.x, 1.0); 
-            } 
-            if (pos.x < 0.0){
-                pos.x = 1.0 - mod(pos.x * -1.0, 1.0);
-            }
-            if (pos.y > 1.0) {
-                pos.y = mod(pos.y, 1.0);
-            } 
-            if (pos.y < 0.0) {
-                pos.y = 1.0 - mod(pos.y * -1.0, 1.0);
-            }
+            pos = fract(pos);
+
+            vec2 randomSeedVector = vec2(pos + v_texturePosition) * randomSeed;
         
-            if (rand(vec2(pos + v_texturePosition) * randomSeed) > respawnPositionThreshold)
+            if (rand(randomSeedVector) > respawnPositionThreshold)
             {
-                pos.x = rand(vec2(pos.y, v_texturePosition));
-                pos.y = rand(vec2(pos.x, colour.a));
+                pos.x = rand(vec2(pos.y, v_texturePosition) * randomSeed);
+                pos.y = rand(vec2(pos.x, colour.a) * randomSeed);
             }
             
             // convert the positions back in to a colour and write them to the texture (this will be texture2, and not the default texture(canvas)).
