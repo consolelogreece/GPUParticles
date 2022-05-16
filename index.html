@@ -95,6 +95,7 @@
 <link rel="stylesheet" type="text/css" href="styles.css">
 
 <script>
+    var canvasEl = document.getElementById("c");
     var formulaEl = document.getElementById("formula");
     var countEl = document.getElementById("particleCountRange");
     var sizeEl =  document.getElementById("particleSizeRange");
@@ -131,12 +132,20 @@
         var particleColour = hexToRGB(particleColourEl.value);
         var backgroundColour = hexToRGB(backgroundColourEl.value);
         var imageUrl = imageUrlEl.value;
+        
+        var webglContext = document.getElementById("c").getContext("webgl2");
+
+        webglContext.canvas.width = window.innerWidth;
+        webglContext.canvas.height = window.innerHeight;
 
         var img = await loadImage(imageUrl);
 
-        particles = new ParticlesExperiment(document.getElementById("c").getContext("webgl2"), particleCount, particleSize, trailFadeRate / 100, 
+        var sceneTextureWidth = window.innerWidth;
+        var sceneTextureHeight = window.innerHeight;
+
+        particles = new ParticlesExperiment(webglContext, particleCount, particleSize, trailFadeRate / 100, 
             1 - (respawnChance / 10000 /*Has to invert from 1 as in the shader 1 = guaranteed respawn which is counter-intuitive to the user*/), particleColour, backgroundColour, 
-            img, window.innerWidth , window.innerHeight);
+            img, sceneTextureWidth, sceneTextureHeight);
 
         var updateParticlesProgramSrc = GetUpdateParticlesProgramSrc(src);
 
@@ -248,6 +257,11 @@
 </script>
 
 <!--
+    todo: consider capping max background scene width and height to the resolution of the screen. Otherwise everything 
+        will look the same anyway, albeit with smaller particles, but these textures will be much, much bigger and thus more laggy if the user zooms out...
+    todo: fix the trail fade. it doesnt fully fade to the background colour, leaving a shadow of the image or colour behind that looks bad.
+        Probably have to do something to the mix function...
+    todo: Why do colours automatically seem faded when the trail fade length is high? they look dim for some reason...
     feature ideas: 
         add collisions using a collision texture 
 -->

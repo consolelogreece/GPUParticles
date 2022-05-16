@@ -12,11 +12,11 @@ void main() {
 frag: (
 `#version 300 es
 precision mediump float;
-uniform sampler2D sampler;
+uniform sampler2D sceneTexture2;
 out vec4 fragColor;
 in vec2 v_textureCoord;
 
 void main(){
-    fragColor = texture(sampler, (1.0 + v_textureCoord) / 2.0);
+    fragColor = texture(sceneTexture2, (1.0 + v_textureCoord) / 2.0);
 }
 `)};

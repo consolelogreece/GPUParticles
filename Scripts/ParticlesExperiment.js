@@ -4,9 +4,6 @@ class ParticlesExperiment {
         this.gl = gl;
         this.utils = utils;
 
-        this.gl.canvas.width = width;
-        this.gl.canvas.height = height;
-
         this.setState(nParticleDimensions, particleSize, trailFadeRate, respawnChance, particleColour, backgroundColour, img, width, height);
         this.setupTextures();
         this.setupFrameBuffers();
@@ -26,8 +23,8 @@ class ParticlesExperiment {
                 respawnThreshold: respawnThreshold
             },
             colours: {
-                particleColour: new Uint8Array(particleColour),
-                backgroundColour: new Uint8Array(backgroundColour),
+                particleColour: new Uint8Array([...particleColour, 255]),
+                backgroundColour: new Uint8Array([...backgroundColour, 255]),
                 particleTextureImage: img
             },
             sceneDimensions: {
@@ -141,7 +138,7 @@ class ParticlesExperiment {
 
         this.gl.useProgram(program);
         this.gl.uniform1f(this.programs.fadeSceneTexture.locations.uniforms.trailFadeRate, this.config.particles.trailFadeRate);
-        this.gl.uniform3fv(this.programs.fadeSceneTexture.locations.uniforms.backgroundColour, this.config.colours.backgroundColour);
+        this.gl.uniform4fv(this.programs.fadeSceneTexture.locations.uniforms.backgroundColour, this.config.colours.backgroundColour);
     }
 
     setupUpdateParticlesProgram(vertSrc, fragSrc)
@@ -179,7 +176,7 @@ class ParticlesExperiment {
         var particleColourTexturePixels = [];
 
         for(var i = 0; i < this.config.sceneDimensions.width * this.config.sceneDimensions.height; i++)
-            particleColourTexturePixels.push(...[...this.config.colours.backgroundColour, 255])
+            particleColourTexturePixels.push(...[...this.config.colours.backgroundColour])
     
         this.textures = {
             // Create the textures that will store particle position information.
@@ -198,7 +195,7 @@ class ParticlesExperiment {
             var particleColourTexturePixels = [];
 
             for(var i = 0; i < this.config.sceneDimensions.width * this.config.sceneDimensions.height; i++)
-                particleColourTexturePixels.push(...[...this.config.colours.particleColour, 255])
+                particleColourTexturePixels.push(...this.config.colours.particleColour)
             
             this.textures.particleColourTexture = this.utils.createTexture(this.gl, this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.config.sceneDimensions.width, this.config.sceneDimensions.height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, new Uint8Array(particleColourTexturePixels));
         }
@@ -265,9 +262,6 @@ class ParticlesExperiment {
 
     drawToScreen()
     {
-        // This is what allows for alpha to work so we can get trails.
-        this.gl.enable(this.gl.BLEND);
-
         this.fadeLastFrame();
         this.drawParticlesToSceneTexture();
         this.drawScreenTextureToCanvas();
@@ -320,6 +314,7 @@ class ParticlesExperiment {
         this.gl.activeTexture(this.gl.TEXTURE0 + this.programs.drawParticles.textureUnits.particleLocationsTexture);
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures.pixelLocationTexture1); 
 
+        // Write to bg texture 2.
         this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this.textures.sceneTexture2, 0); 
 
         // Have to rebind the buffer and do the attribpointer stuff each frame. Unsure as to sure why.
