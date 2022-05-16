@@ -29,6 +29,10 @@ function GetUpdateParticlesProgramSrc(userText)
                 
         frag: (
         `#version 300 es
+
+        // All desktop GPUs will always use highp floats. Setting highp here instead of mediump is for the benefit of mobiles. 
+        // It will affect mobile performance ofcourse and won't work at all on older phones, but the program will not work properly without it.
+        // Read more here: https://webglfundamentals.org/webgl/lessons/webgl-qna-when-to-choose-highp--mediump--lowp-in-shaders.html
         precision highp float;
         
         uniform sampler2D particles;
@@ -60,6 +64,8 @@ function GetUpdateParticlesProgramSrc(userText)
             // positions range from 0 to 1. to recode, we will have to remultiply by 255 wherever necessary.
             vec2 pos = vec2(colour.r / 255.0 + colour.b, colour.g / 255.0 + colour.a);
 
+            // We multiply (and divide, later) by 1000.0 so as to essentially make the range the user works within 0-1000 as opposed to 0-1.
+            // There is no real benefit, it just makes it nicer for the user who won't have to use tiny decimals.
             pos = (pos / displayDimensionRatios) * 1000.0;
 
             // Do whatever we want to update the position of the particle.
