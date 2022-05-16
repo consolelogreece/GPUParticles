@@ -64,24 +64,28 @@ function GetUpdateParticlesProgramSrc(userText)
             // positions range from 0 to 1. to recode, we will have to remultiply by 255 wherever necessary.
             vec2 pos = vec2(colour.r / 255.0 + colour.b, colour.g / 255.0 + colour.a);
 
-            // We multiply (and divide, later) by 1000.0 so as to essentially make the range the user works within 0-1000 as opposed to 0-1.
-            // There is no real benefit, it just makes it nicer for the user who won't have to use tiny decimals.
-            pos = (pos / displayDimensionRatios) * 1000.0;
-
-            // Do whatever we want to update the position of the particle.
-            pos = newPosition(pos);
-
-            pos = (pos * displayDimensionRatios) / 1000.0;
-
-            //Reset if at uv boundary
-            pos = fract(pos);
-
             vec2 randomSeedVector = vec2(pos + v_texturePosition) * randomSeed;
         
+            // If this is true, and we reset position anyway, no need to perform the other position calculations...
             if (rand(randomSeedVector) > respawnPositionThreshold)
             {
+                // Reset position to a random location.
                 pos.x = rand(vec2(pos.y, v_texturePosition) * randomSeed);
                 pos.y = rand(vec2(pos.x, colour.a) * randomSeed);
+            }
+            else
+            {
+                // We multiply (and divide, later) by 1000.0 so as to essentially make the range the user works within 0-1000 as opposed to 0-1.
+                // There is no real benefit, it just makes it nicer for the user who won't have to use tiny decimals.
+                pos = (pos / displayDimensionRatios) * 1000.0;
+    
+                // Do whatever we want to update the position of the particle.
+                pos = newPosition(pos);
+    
+                pos = (pos * displayDimensionRatios) / 1000.0;
+    
+                // This wraps particles that go offscreen to the opposite side.
+                pos = fract(pos);
             }
             
             // convert the positions back in to a colour and write them to the texture (this will be texture2, and not the default texture(canvas)).

@@ -22,7 +22,6 @@ out vec4 fragColor;
 
 void main(){
     vec4 colour = texture(sceneTexture1, (1.0 + v_textureCoord) / 2.0);
-
     fragColor =  mix(colour, backgroundColour / 255.0, trailFadeRate);
 }
 `)};

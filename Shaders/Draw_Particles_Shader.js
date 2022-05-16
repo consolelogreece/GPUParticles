@@ -41,6 +41,5 @@ in vec4 v_colour;
 in vec2 v_position;
 
 void main(){
-    vec4 colour = texture(particleColourTexture, v_position);
-    fragColor = colour;
+    fragColor = texture(particleColourTexture, v_position);
 }`)};
