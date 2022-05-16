@@ -47,13 +47,6 @@ h4 {padding: 0; margin: 0;}
     height: 100%;
 }
 
-@media only screen and (max-width: 600px) {
-    #menu {
-        max-width: 100%;
-        width: 100%;
-    }
-  }
-
 /* Hide scrollbar for Chrome, Safari and Opera */
 #controls::-webkit-scrollbar {
     display: none;
@@ -278,4 +271,11 @@ button:focus {
 
 input::-webkit-calendar-picker-indicator {
     display: none;/* remove default arrow */
+}
+
+@media only screen and (max-width: 1080px) {
+    #menu {
+        max-width: 100%;
+        width: 100%;
+    }
 }
