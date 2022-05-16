@@ -29,7 +29,7 @@ function GetUpdateParticlesProgramSrc(userText)
                 
         frag: (
         `#version 300 es
-        precision mediump float;
+        precision highp float;
         
         uniform sampler2D particles;
         uniform float randomSeed;
