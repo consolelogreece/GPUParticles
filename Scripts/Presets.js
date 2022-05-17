@@ -70,8 +70,7 @@ return newPosition;
 )
 
 var infoText = (
-`// 'currentPosition' is passed in.
-// Top left is (0,0).
+`//  Top left is (0,0). 'currentPosition' is passed in.
 // All numbers must be floats (decimals)`);
 
 
