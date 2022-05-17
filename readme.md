@@ -8,7 +8,7 @@ Resources I used when learning WebGL:
 - [Introduction to Computer Graphics Book](https://math.hws.edu/graphicsbook/)
 - [Khronos WebGL Specifications & Wiki](https://www.khronos.org/webgl/)
 - [Andrew Adamson's YouTube Series](https://www.youtube.com/user/osakaandrew)
-- [The book of Shaders](https://thebookofshaders.com/)
+- [The Book of Shaders](https://thebookofshaders.com/)
 
 Project inspiration and help:
 - [Vladimir Agafonkin's WebGL Wind Map](https://blog.mapbox.com/how-i-built-a-wind-map-with-webgl-b63022b5537f)
