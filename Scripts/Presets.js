@@ -70,9 +70,9 @@ return newPosition;
 )
 
 var infoText = (
-`//currentPosition is passed in.
-//Coordinates range from 0 to 1000. Top left is (0,0).
-//All numbers must be floats (decimals)`);
+`// 'currentPosition' is passed in.
+// Top left is (0,0).
+// All numbers must be floats (decimals)`);
 
 
 function build(code)
