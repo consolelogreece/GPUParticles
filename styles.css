@@ -38,7 +38,7 @@ h4 {padding: 0; margin: 0;}
     scrollbar-width: none;  /* Firefox */
     overflow-y: scroll;
     overflow-x: hidden;
-    height: 93%;
+    height: 90%;
     width: 100%;
 }
 
@@ -46,7 +46,7 @@ h4 {padding: 0; margin: 0;}
     max-width: 30%;
     width: 600px;
     background-color: #180b04;
-    border: 6px solid #180b04; 
+    border: 3px solid #180b04; 
     box-sizing: border-box;
     position: absolute;
     right: 0;
@@ -85,6 +85,8 @@ h4 {padding: 0; margin: 0;}
 
 #buttonsContainer {
     background-color: #180b04;
+    padding: 2% 0%;
+    border-top: 2px solid #ddc9b4;
 }
 
 .controlLabel {
