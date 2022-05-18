@@ -1,114 +1,198 @@
 var Swirls = (
 `
-    // We use the dimension ratios to prevent distortion and 
-    // we multiply (and divide, later by 1000.0 so we dont 
-    // have to calculate positions with tiny decimals
-    currentPosition /= (displayDimensionRatios / 1000.0);
+    // Use the dimension ratios to prevent position distortion. Without 
+    // using displayDimensionRatios, the area would be stretched over 
+    // the longest dimension.
+    currentPosition /= displayDimensionRatios;
+
+    float calculationMagnificationFactor = 1000.0;
+
+    // Scale up we dont have to deal with tiny decimals during calculations.
+    currentPosition *= calculationMagnificationFactor;
 
     vec2 newPosition = vec2(0);
 
-    // This is where the magic happens
+    //////////////// This is where the magic happens ////////////////
     newPosition.x = currentPosition.x + sin(currentPosition.y / 100.0);
     newPosition.y = currentPosition.y + sin(currentPosition.x / 100.0);
+    /////////////////////////////////////////////////////////////////
 
-    return newPosition * (displayDimensionRatios / 1000.0);`
-);
+    // Return coordinates to their original order of magnitude.
+    newPosition /= 1000.0;
+
+    // Calculations are done, so scale positions back up to fit on screen properly.
+    newPosition *= displayDimensionRatios;
+
+    return newPosition;
+`);
 
 var Miniswirls = (
 `
-    // We use the dimension ratios to prevent distortion and 
-    // we multiply (and divide, later by 1000.0 so we dont 
-    // have to calculate positions with tiny decimals
-    currentPosition /= (displayDimensionRatios / 1000.0);
+    // Use the dimension ratios to prevent position distortion. Without 
+    // using displayDimensionRatios, the area would be stretched over 
+    // the longest dimension.
+    currentPosition /= displayDimensionRatios;
+
+    float calculationMagnificationFactor = 1000.0;
+
+    // Scale up we dont have to deal with tiny decimals during calculations.
+    currentPosition *= calculationMagnificationFactor;
 
     vec2 newPosition = vec2(0);
 
-    // This is where the magic happens
+    //////////////// This is where the magic happens ////////////////
     newPosition.x = currentPosition.x + sin(currentPosition.y / 10.0);
     newPosition.y = currentPosition.y + sin(currentPosition.x / 10.0);
+    /////////////////////////////////////////////////////////////////
 
-    return newPosition * (displayDimensionRatios / 1000.0);`
-);
+    // Return coordinates to their original order of magnitude.
+    newPosition /= 1000.0;
+
+    // Calculations are done, so scale positions back up to fit on screen properly.
+    newPosition *= displayDimensionRatios;
+
+    return newPosition;
+`);
 
 var Milkyway = (
 `
-    // We use the dimension ratios to prevent distortion and 
-    // we multiply (and divide, later by 1000.0 so we dont 
-    // have to calculate positions with tiny decimals
-    currentPosition /= (displayDimensionRatios / 1000.0);
+    // Use the dimension ratios to prevent position distortion. Without 
+    // using displayDimensionRatios, the area would be stretched over 
+    // the longest dimension.
+    currentPosition /= displayDimensionRatios;
+
+    float calculationMagnificationFactor = 1000.0;
+
+    // Scale up we dont have to deal with tiny decimals during calculations.
+    currentPosition *= calculationMagnificationFactor;
 
     vec2 newPosition = vec2(0);
 
-    // This is where the magic happens
+    //////////////// This is where the magic happens ////////////////
     newPosition.x = currentPosition.x + (1.0 * currentPosition.y / 500.0);
     newPosition.y = currentPosition.y - currentPosition.x / 1000.0;
+    /////////////////////////////////////////////////////////////////
 
-    return newPosition * (displayDimensionRatios / 1000.0);`
-);
+    // Return coordinates to their original order of magnitude.
+    newPosition /= 1000.0;
+
+    // Calculations are done, so scale positions back up to fit on screen properly.
+    newPosition *= displayDimensionRatios;
+
+    return newPosition;
+`);
 
 var Parallax = (
 `
-    // We use the dimension ratios to prevent distortion and 
-    // we multiply (and divide, later by 1000.0 so we dont 
-    // have to calculate positions with tiny decimals
-    currentPosition /= (displayDimensionRatios / 1000.0);
+    // Use the dimension ratios to prevent position distortion. Without 
+    // using displayDimensionRatios, the area would be stretched over 
+    // the longest dimension.
+    currentPosition /= displayDimensionRatios;
+
+    float calculationMagnificationFactor = 1000.0;
+
+    // Scale up we dont have to use deal tiny decimals during calculations.
+    currentPosition *= calculationMagnificationFactor;
 
     vec2 newPosition = vec2(0);
 
-    // This is where the magic happens
+    //////////////// This is where the magic happens ////////////////
     newPosition.x = currentPosition.x + (1.0 * currentPosition.y / 250.0);
     newPosition.y = currentPosition.y;
+    /////////////////////////////////////////////////////////////////
 
-    return newPosition * (displayDimensionRatios / 1000.0);`
-);
+    // Return coordinates to their original order of magnitude.
+    newPosition /= 1000.0;
+
+    // Calculations are done, so scale positions back up to fit on screen properly.
+    newPosition *= displayDimensionRatios;
+
+    return newPosition;
+`);
 
 var Checkerboard = (
 `
-    // We use the dimension ratios to prevent distortion and 
-    // we multiply (and divide, later by 1000.0 so we dont 
-    // have to calculate positions with tiny decimals
-    currentPosition /= (displayDimensionRatios / 1000.0);
+    // Use the dimension ratios to prevent position distortion. Without 
+    // using displayDimensionRatios, the area would be stretched over 
+    // the longest dimension.
+    currentPosition /= displayDimensionRatios;
+
+    float calculationMagnificationFactor = 1000.0;
+
+    // Scale up we dont have to deal with tiny decimals during calculations.
+    currentPosition *= calculationMagnificationFactor;
 
     vec2 newPosition = vec2(0);
 
-    // This is where the magic happens
+    //////////////// This is where the magic happens ////////////////
     newPosition.x = currentPosition.x + tan(currentPosition.y / 50.0) / 16.0;
     newPosition.y = currentPosition.y + tan(currentPosition.x / 50.0) / 7.0;
+    /////////////////////////////////////////////////////////////////
 
-    return newPosition * (displayDimensionRatios / 1000.0);`
-)
+    // Return coordinates to their original order of magnitude.
+    newPosition /= 1000.0;
+
+    // Calculations are done, so scale positions back up to fit on screen properly.
+    newPosition *= displayDimensionRatios;
+
+    return newPosition;
+`)
 
 var Waterfall = (
 `
-    // We use the dimension ratios to prevent distortion and 
-    // we multiply (and divide, later by 1000.0 so we dont 
-    // have to calculate positions with tiny decimals
-    currentPosition /= (displayDimensionRatios / 1000.0);
+    // Use the dimension ratios to prevent position distortion. Without 
+    // using displayDimensionRatios, the area would be stretched over 
+    // the longest dimension.
+    currentPosition /= displayDimensionRatios;
+
+    float calculationMagnificationFactor = 1000.0;
+
+    // Scale up we dont have to deal with tiny decimals during calculations.
+    currentPosition *= calculationMagnificationFactor; 
 
     vec2 newPosition = vec2(0);
 
-    // This is where the magic happens
+    //////////////// This is where the magic happens ////////////////
     newPosition.x = currentPosition.x;
     newPosition.y = currentPosition.y + (sqrt(currentPosition.y) / 6.0);
+    /////////////////////////////////////////////////////////////////
 
-    return newPosition * (displayDimensionRatios / 1000.0);`
-);
+    // Return coordinates to their original order of magnitude.
+    newPosition /= 1000.0;
+
+    // Calculations are done, so scale positions back up to fit on screen properly.
+    newPosition *= displayDimensionRatios;
+
+    return newPosition;
+`);
 
 var Waves = (
 `
-    // We use the dimension ratios to prevent distortion and 
-    // we multiply (and divide, later by 1000.0 so we dont 
-    // have to calculate positions with tiny decimals
-    currentPosition /= (displayDimensionRatios / 1000.0);
+    // Use the dimension ratios to prevent position distortion. Without 
+    // using displayDimensionRatios, the area would be stretched over 
+    // the longest dimension.
+    currentPosition /= displayDimensionRatios;
+
+    float calculationMagnificationFactor = 1000.0;
+
+    // Scale up we dont have to deal with tiny decimals during calculations.
+    currentPosition *= calculationMagnificationFactor;
 
     vec2 newPosition = vec2(0);
 
-    // This is where the magic happens
+    //////////////// This is where the magic happens ////////////////
     newPosition.x = currentPosition.x + sin(currentPosition.y / 100.0);
     newPosition.y = currentPosition.y + sin(currentPosition.y / 50.0) + currentPosition.x / 550.0;
+    /////////////////////////////////////////////////////////////////
 
-    return newPosition * (displayDimensionRatios / 1000.0);`
-)
+    // Return coordinates to their original order of magnitude.
+    newPosition /= 1000.0;
+
+    // Calculations are done, so scale positions back up to fit on screen properly.
+    newPosition *= displayDimensionRatios;
+
+    return newPosition;
+`)
 
 
 var topText = (
