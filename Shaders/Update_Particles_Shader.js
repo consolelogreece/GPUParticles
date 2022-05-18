@@ -68,9 +68,6 @@ function GetUpdateParticlesProgramSrc(userText)
             {    
                 // Do whatever we want to update the position of the particle.
                 pos = calculateNewPosition(pos, displayDimensionRatios, randomLocation);
-    
-                // This wraps particles that go offscreen to the opposite side.
-                //pos = fract(pos);
             }
             
             // convert the positions back in to a colour and write them to the texture (this will be texture2, and not the default texture(canvas)).
