@@ -23,7 +23,8 @@ var Swirls = (
     // Calculations are done, so scale positions back up to fit on screen properly.
     newPosition *= displayDimensionRatios;
 
-    return newPosition;
+    // Using fract means particles that go offscreen teleport to the opposite side.
+    return fract(newPosition);
 `);
 
 var Miniswirls = (
@@ -51,7 +52,8 @@ var Miniswirls = (
     // Calculations are done, so scale positions back up to fit on screen properly.
     newPosition *= displayDimensionRatios;
 
-    return newPosition;
+    // Using fract means particles that go offscreen teleport to the opposite side.
+    return fract(newPosition);
 `);
 
 var Milkyway = (
@@ -79,7 +81,8 @@ var Milkyway = (
     // Calculations are done, so scale positions back up to fit on screen properly.
     newPosition *= displayDimensionRatios;
 
-    return newPosition;
+    // Using fract means particles that go offscreen teleport to the opposite side.
+    return fract(newPosition);
 `);
 
 var Parallax = (
@@ -107,7 +110,8 @@ var Parallax = (
     // Calculations are done, so scale positions back up to fit on screen properly.
     newPosition *= displayDimensionRatios;
 
-    return newPosition;
+    // Using fract means particles that go offscreen teleport to the opposite side.
+    return fract(newPosition);
 `);
 
 var Checkerboard = (
@@ -135,7 +139,8 @@ var Checkerboard = (
     // Calculations are done, so scale positions back up to fit on screen properly.
     newPosition *= displayDimensionRatios;
 
-    return newPosition;
+    // Using fract means particles that go offscreen teleport to the opposite side.
+    return fract(newPosition);
 `)
 
 var Waterfall = (
@@ -163,7 +168,8 @@ var Waterfall = (
     // Calculations are done, so scale positions back up to fit on screen properly.
     newPosition *= displayDimensionRatios;
 
-    return newPosition;
+    // Using fract means particles that go offscreen teleport to the opposite side.
+    return fract(newPosition);
 `);
 
 var Waves = (
@@ -191,16 +197,42 @@ var Waves = (
     // Calculations are done, so scale positions back up to fit on screen properly.
     newPosition *= displayDimensionRatios;
 
-    return newPosition;
+    // Using fract means particles that go offscreen teleport to the opposite side.
+    return fract(newPosition);
 `)
+
+var warpSpeed = (
+`
+    float calculationMagnificationFactor = 1000.0;
+
+    // Scale up we dont have to deal with tiny decimals during calculations.
+    currentPosition *= calculationMagnificationFactor;
+
+    vec2 newPosition = vec2(0);
+
+    //////////////// This is where the magic happens ////////////////
+    newPosition.x = currentPosition.x + sinh((currentPosition.x - 500.) / 500.0) * 3.12;
+    newPosition.y = currentPosition.y + sin((currentPosition.y - 500.) / 500.0) * 3.12;
+    /////////////////////////////////////////////////////////////////
+
+    // Return coordinates to their original order of magnitude.
+    newPosition /= calculationMagnificationFactor;
+
+    if (distance(newPosition, fract(newPosition)) > 0.0) newPosition = randomLocation;
+
+    return newPosition;
+`
+);
 
 
 var topText = (
 `// Top left is (0,0). All numbers must be floats (decimals).
 // displayDimensionRatios contains screen dimension (width/height) ratio, 
 // where the shortest dimension is 1 and the longest is shortest / longest.
+// randomLocation is a random location that you can set to; this respawns the particle.
 
-vec2 calculateNewPosition(vec2 currentPosition, vec2 displayDimensionRatios)
+vec2 calculateNewPosition(vec2 currentPosition, 
+    vec2 displayDimensionRatios, vec2 randomLocation)
 {`);
 
 
@@ -216,5 +248,6 @@ const presets = {
     Parallax : build(Parallax),
     Checkerboard: build(Checkerboard),
     Waterfall: build(Waterfall),
-    Waves: build(Waves)
+    Waves: build(Waves),
+    "Warp Speed": build(warpSpeed)
 }
