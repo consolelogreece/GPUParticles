@@ -1,5 +1,14 @@
 <!-- This is a learning exercise inspired and hugely helped by: https://blog.mapbox.com/how-i-built-a-wind-map-with-webgl-b63022b5537f -->
 <!DOCTYPE html>
+<script src="./Scripts/utils.js"></script>
+<script src="./Scripts/Presets.js"></script>
+<script src="./Shaders/Draw_Particles_Shader.js"></script>
+<script src="./Shaders/Fade_Screen_Texture_Shader.js"></script>
+<script src="./Shaders/Draw_To_Screen_Texture_Shader.js"></script>
+<script src="./Shaders/Update_Particles_Shader.js"></script>
+<script src="./Scripts/ParticlesExperiment.js"></script>
+<link rel="stylesheet" type="text/css" href="styles.css">
+
 <body>
     <div id="particlesApp" class="centered">
         <div id="particlesDisplayContainer">
@@ -18,19 +27,20 @@
             </a>   
         </div>
         <div id="controls">
-            <h3 class="controlAreaLabel">Formula   <span class="infoLabel">(This will decide each particle's new position every frame)</span></h3>      
+            <h3 class="controlAreaLabel">Update Method GLSL  <span class="infoLabel">(This will decide each particle's new position every frame)</span></h3>      
             <div class="controlElementContainer" id="formulaContainer">
                 <textarea id="formula" rows="4" cols="50"></textarea>
                 <h4 class="controlLabel">Select a preset:</h4> 
                 <select name="formulaPresets" id="formulaPresets" onchange="onPresetChanged()" class="inputBox" id="formulaPresets">
-                  <option value="Swirls" selected>Swirls</option>
-                  <option value="Miniswirls" selected>Miniswirls</option>
-                  <option value="Milkyway">Milkyway</option>
-                  <option value="Parallax">Parallax</option>
-                  <option value="Checkerboard">Checkerboard</option>
-                  <option value="Waterfall">Waterfall</option>
-                  <option value="Waves">Waves</option>
-                  <option value="Warp Speed">Warp Speed</option>
+                    <option value="Checkerboard">Checkerboard</option>
+                    <option value="Milkyway">Milkyway</option>
+                    <option value="Miniswirls">Miniswirls</option>
+                    <option value="Parallax">Parallax</option>
+                    <option value="Swirls">Swirls</option>   
+                    <option value="Warp Speed">Warp Speed</option>          
+                    <option value="Waterfall">Waterfall</option>
+                    <option value="Waves">Waves</option>
+
                 </select> 
             </div>
             <h3 class="controlAreaLabel">Configuration</h3>
@@ -67,12 +77,12 @@
                     <h4 class="controlLabel">Image URL  <span class="infoLabel">(The particles will paint this image)</span></h4> 
                     <input id="imageUrl" class="inputBox" placeholder="Click for choices/enter your own url (imgur.com/example.png)" type="text" list="images" />
                     <datalist id="images">
-                        <option value="https://i.imgur.com/QALgrNJ.jpeg">Mountain River</option>
-                        <option value="https://i.imgur.com/nE2WMAF.jpeg">Indian Sunset</option>
-                        <option value="https://i.imgur.com/cmAtU7Y.jpeg">Graffiti</option>
-                        <option value="https://i.imgur.com/E6e6vjP.jpeg">Space Cat</option>
                         <option value="https://i.imgur.com/rel7mXd.jpeg">Fantasy</option>
+                        <option value="https://i.imgur.com/cmAtU7Y.jpeg">Graffiti</option>
+                        <option value="https://i.imgur.com/nE2WMAF.jpeg">Indian Sunset</option>
                         <option value="https://i.imgur.com/8tcxHWh.jpeg">Low Poly Mountains</option>
+                        <option value="https://i.imgur.com/QALgrNJ.jpeg">Mountain River</option>
+                        <option value="https://i.imgur.com/E6e6vjP.jpeg">Space Cat</option>
                         <option value="https://i.imgur.com/mA7Hmfs.png">Underwater</option>
                     </datalist>
                 </div>               
@@ -84,15 +94,6 @@
         </div>
     </div>
 </body>
-
-<script src="./Scripts/utils.js"></script>
-<script src="./Scripts/Presets.js"></script>
-<script src="./Shaders/Draw_Particles_Shader.js"></script>
-<script src="./Shaders/Fade_Screen_Texture_Shader.js"></script>
-<script src="./Shaders/Draw_To_Screen_Texture_Shader.js"></script>
-<script src="./Shaders/Update_Particles_Shader.js"></script>
-<script src="./Scripts/ParticlesExperiment.js"></script>
-<link rel="stylesheet" type="text/css" href="styles.css">
 
 <script>
     var canvasEl = document.getElementById("c");
@@ -165,7 +166,7 @@
         particleColourEl.value = "#ffa366";
         backgroundColourEl.value = "#1a0a00";
         imageUrlEl.value = "";
-        presetEl.selectedIndex = 0;
+        presetEl.selectedIndex = 4;
 
         onParticleCountInput();
         onParticleSizeInput();
