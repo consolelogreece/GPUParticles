@@ -2,14 +2,7 @@
 function GetUpdateParticlesProgramSrc(userText)
 {
     if (!userText || userText == ""){
-        userText = (
-            `vec2 newPosition = vec2(0);
-            
-            newPosition.x = currentPosition.x + sin(currentPosition.y / 100.0);
-            newPosition.y = currentPosition.y + sin(currentPosition.x / 100.0);
-        
-            return newPosition;`
-        )
+        userText = presets.Swirls;
     }
 
     updateParticlesProgramSrc = {
@@ -62,21 +55,22 @@ function GetUpdateParticlesProgramSrc(userText)
             vec2 pos = vec2(colour.r / 255.0 + colour.b, colour.g / 255.0 + colour.a);
 
             vec2 randomSeedVector = vec2(pos + v_texturePosition) * randomSeed;
-        
-            // If this is true, and we reset position anyway, no need to perform the other position calculations...
+
+            vec2 randomLocation = vec2(rand(vec2(pos.y, v_texturePosition) * randomSeed), rand(vec2(pos.x, colour.a) * randomSeed));
+
+            // If this is true, and we resetW position anyway, no need to perform the other position calculations...
             if (rand(randomSeedVector) > respawnPositionThreshold)
             {
                 // Reset position to a random location.
-                pos.x = rand(vec2(pos.y, v_texturePosition) * randomSeed);
-                pos.y = rand(vec2(pos.x, colour.a) * randomSeed);
+                pos = randomLocation;
             }
             else
             {    
                 // Do whatever we want to update the position of the particle.
-                pos = calculateNewPosition(pos, displayDimensionRatios);
+                pos = calculateNewPosition(pos, displayDimensionRatios, randomLocation);
     
                 // This wraps particles that go offscreen to the opposite side.
-                pos = fract(pos);
+                //pos = fract(pos);
             }
             
             // convert the positions back in to a colour and write them to the texture (this will be texture2, and not the default texture(canvas)).
