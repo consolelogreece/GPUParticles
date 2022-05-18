@@ -18,7 +18,7 @@ var Swirls = (
     /////////////////////////////////////////////////////////////////
 
     // Return coordinates to their original order of magnitude.
-    newPosition /= 1000.0;
+    newPosition /= calculationMagnificationFactor;
 
     // Calculations are done, so scale positions back up to fit on screen properly.
     newPosition *= displayDimensionRatios;
@@ -46,7 +46,7 @@ var Miniswirls = (
     /////////////////////////////////////////////////////////////////
 
     // Return coordinates to their original order of magnitude.
-    newPosition /= 1000.0;
+    newPosition /= calculationMagnificationFactor;
 
     // Calculations are done, so scale positions back up to fit on screen properly.
     newPosition *= displayDimensionRatios;
@@ -74,7 +74,7 @@ var Milkyway = (
     /////////////////////////////////////////////////////////////////
 
     // Return coordinates to their original order of magnitude.
-    newPosition /= 1000.0;
+    newPosition /= calculationMagnificationFactor;
 
     // Calculations are done, so scale positions back up to fit on screen properly.
     newPosition *= displayDimensionRatios;
@@ -102,7 +102,7 @@ var Parallax = (
     /////////////////////////////////////////////////////////////////
 
     // Return coordinates to their original order of magnitude.
-    newPosition /= 1000.0;
+    newPosition /= calculationMagnificationFactor;
 
     // Calculations are done, so scale positions back up to fit on screen properly.
     newPosition *= displayDimensionRatios;
@@ -130,7 +130,7 @@ var Checkerboard = (
     /////////////////////////////////////////////////////////////////
 
     // Return coordinates to their original order of magnitude.
-    newPosition /= 1000.0;
+    newPosition /= calculationMagnificationFactor;
 
     // Calculations are done, so scale positions back up to fit on screen properly.
     newPosition *= displayDimensionRatios;
@@ -158,7 +158,7 @@ var Waterfall = (
     /////////////////////////////////////////////////////////////////
 
     // Return coordinates to their original order of magnitude.
-    newPosition /= 1000.0;
+    newPosition /= calculationMagnificationFactor;
 
     // Calculations are done, so scale positions back up to fit on screen properly.
     newPosition *= displayDimensionRatios;
@@ -186,7 +186,7 @@ var Waves = (
     /////////////////////////////////////////////////////////////////
 
     // Return coordinates to their original order of magnitude.
-    newPosition /= 1000.0;
+    newPosition /= calculationMagnificationFactor;
 
     // Calculations are done, so scale positions back up to fit on screen properly.
     newPosition *= displayDimensionRatios;
