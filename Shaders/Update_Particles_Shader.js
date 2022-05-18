@@ -51,10 +51,7 @@ function GetUpdateParticlesProgramSrc(userText)
             return fract(sin(t) * (4375.85453 + t));
         }
 
-        vec2 newPosition(vec2 currentPosition)
-        {
-            ${userText} 
-        }
+        ${userText} 
      
         void main(){
             // get the pixel colour at the given position
@@ -74,15 +71,9 @@ function GetUpdateParticlesProgramSrc(userText)
                 pos.y = rand(vec2(pos.x, colour.a) * randomSeed);
             }
             else
-            {
-                // We multiply (and divide, later) by 1000.0 so as to essentially make the range the user works within 0-1000 as opposed to 0-1.
-                // There is no real benefit, it just makes it nicer for the user who won't have to use tiny decimals.
-                pos = (pos / displayDimensionRatios) * 1000.0;
-    
+            {    
                 // Do whatever we want to update the position of the particle.
-                pos = newPosition(pos);
-    
-                pos = (pos * displayDimensionRatios) / 1000.0;
+                pos = calculateNewPosition(pos, displayDimensionRatios);
     
                 // This wraps particles that go offscreen to the opposite side.
                 pos = fract(pos);
