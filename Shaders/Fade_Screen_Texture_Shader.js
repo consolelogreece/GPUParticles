@@ -22,14 +22,8 @@ out vec4 fragColor;
 
 void main(){
     vec4 colour = texture(sceneTexture1, (1.0 + v_textureCoord) / 2.0);
-
     vec4 bgColour = backgroundColour / 255.0;
+    fragColor = mix(colour, bgColour, trailFadeRate);
 
-    if (distance(colour, bgColour) < 0.5)
-    {
-        fragColor = bgColour;
-    } else {
-        fragColor =  mix(colour, bgColour, trailFadeRate);
-    }
 }
 `)};
